@@ -1,0 +1,6 @@
+@AgroSense_HostAddress = http://localhost:5094
+
+GET {{AgroSense_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
