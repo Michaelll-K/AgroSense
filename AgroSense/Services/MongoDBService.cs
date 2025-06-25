@@ -6,10 +6,14 @@ namespace AgroSense.Services
     {
         public static IMongoDatabase CreateAsync(IConfiguration configuration)
         {
-            //var client = new MongoClient(configuration["MongoDB:Endpoint"]);
-            //return client.GetDatabase(configuration["MongoDB:DbName"]);
+            var settings = MongoClientSettings.FromUrl(new MongoUrl(configuration["MongoDB:Endpoint"]));
 
-            return null;
+            settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
+            
+            settings.RetryWrites = false;
+            
+            var client = new MongoClient(settings);
+            return client.GetDatabase(configuration["MongoDB:DbName"]);
         }
     }
 }
