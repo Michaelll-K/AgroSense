@@ -1,7 +1,7 @@
 # AgroSense – Inteligentny system monitorowania i nawadniania upraw
 
 ## Opis projektu
-AgroSense to innowacyjny system IoT dedykowany rolnikom, którzy chcą monitorować warunki upraw (takie jak wilgotność gleby, temperatura oraz natężenie światła) oraz zdalnie sterować systemem nawadniania. Dzięki integracji symulatora urządzenia IoT z chmurą Azure, AgroSense umożliwia bieżącą analizę danych, wysyłanie alertów oraz podejmowanie decyzji w czasie rzeczywistym, co przekłada się na optymalizację zużycia wody i poprawę plonów.
+AgroSense to innowacyjny system IoT dedykowany rolnikom, którzy chcą monitorować warunki upraw (takie jak wilgotność gleby, temperatura i prędkość wiatru) oraz zdalnie sterować systemem nawadniania. Dzięki integracji symulatora urządzenia IoT z chmurą Azure, AgroSense umożliwia bieżącą analizę danych, wysyłanie alertów oraz podejmowanie decyzji w czasie rzeczywistym, co przekłada się na optymalizację zużycia wody i poprawę plonów.
 
 ## Spis treści
 - [Opis projektu](#opis-projektu)
