@@ -80,5 +80,21 @@ namespace AgroSense.Controllers
 
             return $"Obecna temperatura w Lisse wynosi {weatherResponse.current.temperature_2m}°C, a prędkość wiatru wynosi {weatherResponse.current.wind_speed_10m}m/s";
         }
+
+        [HttpPost("start-watering")]
+        public ActionResult<string> StartWathering()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        
+            return $"Nawodnienie rozpoczęte";
+        }
+        
+        [HttpPost("stop-watering")]
+        public ActionResult<string> StopWathering()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        
+            return $"Nawodnienie zakończone";
+        }
     }
 }
