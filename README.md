@@ -90,7 +90,7 @@ pip install -r requirements.txt
 
 
 
-Uruchomienie projektu
+## Uruchomienie projektu
 
 1. Uruchomienie brokera MQTT:
 W katalogu głównym projektu uruchom:
@@ -109,7 +109,7 @@ python simple_mqtt_device_simulator.py
 Po uruchomieniu symulatora urządzenia, dane będą przesyłane do brokera MQTT. Dzięki konfiguracji IoT Hub, dane te mogą być zbierane, analizowane i wykorzystywane do wysyłania alertów lub sterowania systemem nawadniania.
 
 
-ZARYS BIZNESOWY
+## Zarys Biznesowy
 
 Cel projektu:
 AgroSense ma na celu zwiększenie efektywności zarządzania nawadnianiem upraw poprzez monitorowanie warunków środowiskowych w czasie rzeczywistym. System pozwala na optymalizację zużycia wody, zmniejszenie kosztów oraz poprawę jakości plonów dzięki szybkiej reakcji na zmieniające się warunki pogodowe.
@@ -134,7 +134,7 @@ PO TO, ABY planować efektywnie przyszłe działania inwestycyjne i operacyjne.
 
 
 
-USECASE 
+## User Stories 
 
 Use Case: Zarządzanie Nawadnianiem na Podstawie Danych o Wilgotności Gleby
 
