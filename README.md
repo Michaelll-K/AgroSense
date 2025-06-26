@@ -120,17 +120,17 @@ Obniżenie kosztów związanych z nadmiernym zużyciem wody.
 Szybsze reagowanie na nagłe spadki wilgotności gleby.
 Dostęp do historycznych danych, które wspierają podejmowanie lepszych decyzji dotyczących nawadniania i planowania upraw.
 User Stories
-JAKO rolnik
-CHCIAŁBYM monitorować wilgotność gleby w czasie rzeczywistym
-PO TO, ABY optymalizować proces nawadniania moich upraw.
+Jako rolnik
+Chciałbym monitorować wilgotność gleby w czasie rzeczywistym
+Po to, aby optymalizować proces nawadniania moich upraw.
 
-JAKO administrator systemu
-CHCIAŁBYM otrzymywać alerty, gdy wilgotność gleby spada poniżej ustalonego poziomu
-PO TO, ABY szybko reagować i zapobiegać uszkodzeniom upraw.
+Jako administrator systemu
+Chciałbym otrzymywać alerty, gdy wilgotność gleby spada poniżej ustalonego poziomu
+Po to, aby szybko reagować i zapobiegać uszkodzeniom upraw.
 
-JAKO właściciel gospodarstwa
-CHCIAŁBYM mieć dostęp do raportów z danymi historycznymi
-PO TO, ABY planować efektywnie przyszłe działania inwestycyjne i operacyjne.
+Jako właściciel gospodarstwa
+Chciałbym mieć dostęp do raportów z danymi historycznymi
+Po to, aby planować efektywnie przyszłe działania inwestycyjne i operacyjne.
 
 
 
