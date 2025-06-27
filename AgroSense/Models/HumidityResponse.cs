@@ -3,6 +3,6 @@
     public class HumidityResponse
     {
         public int Humidity { get; set; }
-        public Advices Advice { get; set; }
+        public string Advice { get; set; }
     }
 }

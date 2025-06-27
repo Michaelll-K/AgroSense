@@ -34,15 +34,15 @@ namespace AgroSense.Controllers
 
             if (result.Humidity < 10)
             {
-                result.Advice = Advices.Watering;
+                result.Advice = nameof(Advices.Watering);
             }
             else if (result.Humidity > 21)
             {
-                result.Advice = Advices.None;
+                result.Advice = nameof(Advices.None);
             }
             else
             {
-                result.Advice = Advices.Drying;
+                result.Advice = nameof(Advices.Drying);
             }
 
             return result;
