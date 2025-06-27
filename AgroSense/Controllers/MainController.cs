@@ -94,7 +94,7 @@ namespace AgroSense.Controllers
         {
             Thread.Sleep(TimeSpan.FromSeconds(5));
         
-            return $"Nawodnienie zakończone";
+            return $"Nawodnienie zakończone"; // test
         }
     }
 }
