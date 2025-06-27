@@ -1,7 +1,12 @@
 ﻿using AgroSense.Entities;
 using AgroSense.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace AgroSense.Controllers
@@ -11,10 +16,12 @@ namespace AgroSense.Controllers
     public class MainController : ControllerBase
     {
         private readonly IMongoDatabase database;
+        private readonly IConfiguration configuration;
 
-        public MainController(IMongoDatabase database)
+        public MainController(IMongoDatabase database, IConfiguration configuration)
         {
             this.database = database;
+            this.configuration = configuration;
         }
 
         [HttpGet("humidity")]
@@ -41,6 +48,7 @@ namespace AgroSense.Controllers
             return result;
         }
 
+        [Authorize]
         [HttpGet("history")]
         public async Task<ActionResult<List<HumidityHistory>>> GetHistory()
         {
@@ -49,6 +57,7 @@ namespace AgroSense.Controllers
             return await history.Find(Builders<HumidityHistory>.Filter.Empty).ToListAsync();
         }
 
+        [Authorize]
         [HttpPost("history")]
         public async Task<ActionResult> SaveHistory([FromQuery] int humidity)
         {
@@ -81,6 +90,7 @@ namespace AgroSense.Controllers
             return $"Obecna temperatura w Lisse wynosi {weatherResponse.current.temperature_2m}°C, a prędkość wiatru wynosi {weatherResponse.current.wind_speed_10m}m/s";
         }
 
+        [Authorize]
         [HttpPost("start-watering")]
         public ActionResult<string> StartWathering()
         {
@@ -88,13 +98,41 @@ namespace AgroSense.Controllers
         
             return $"Nawodnienie rozpoczęte";
         }
-        
+
+        [Authorize]
         [HttpPost("stop-watering")]
         public ActionResult<string> StopWathering()
         {
             Thread.Sleep(TimeSpan.FromSeconds(5));
         
             return $"Nawodnienie zakończone"; // test
+        }
+
+        [HttpPost("login")]
+        public ActionResult<string> Login([FromBody] AuthModel model)
+        {
+            if (model.Username != configuration["UserAuth:Login"] || model.Password != configuration["UserAuth:Pass"])
+            {
+                return BadRequest("Błędne dane logowania");
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, model.Username)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Issuer"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(15),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
