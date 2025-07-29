@@ -1,6 +1,7 @@
 ﻿using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Models.Player;
+using AgroSense.Services;
 using AgroSense.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ namespace AgroSense.Controllers
     public class HeadquartersController : ControllerBase
     {
         private readonly IMongoDatabase database;
+        private readonly AmogusService amogusService;
 
         #region HeadquartersController()
-        public HeadquartersController(IMongoDatabase database)
+        public HeadquartersController(IMongoDatabase database, AmogusService amogusService)
         {
             this.database = database;
+            this.amogusService = amogusService;
         }
         #endregion
 
@@ -87,6 +90,8 @@ namespace AgroSense.Controllers
                 );
             }
 
+            await amogusService.SendGameUpdate();
+
             return Accepted();
         }
         #endregion
@@ -110,6 +115,8 @@ namespace AgroSense.Controllers
                 );
             }
 
+            await amogusService.SendGameUpdate();
+
             return Ok();
         }
         #endregion
@@ -121,7 +128,11 @@ namespace AgroSense.Controllers
             var settings = await database.GetSettings();
 
             if (!settings.SabotageDeadline.HasValue)
+            {
+                await amogusService.SendGameUpdate();
+
                 return Ok();
+            }
 
             settings.FirstO2 = isPressed;
 
@@ -142,6 +153,8 @@ namespace AgroSense.Controllers
                 settings
             );
 
+            await amogusService.SendGameUpdate();
+
             return Accepted();
         }
         #endregion
@@ -153,7 +166,11 @@ namespace AgroSense.Controllers
             var settings = await database.GetSettings();
 
             if (!settings.SabotageDeadline.HasValue)
+            {
+                await amogusService.SendGameUpdate();
+
                 return Ok();
+            }
 
             settings.SecondO2 = isPressed;
 
@@ -174,6 +191,8 @@ namespace AgroSense.Controllers
                 settings
             );
 
+            await amogusService.SendGameUpdate();
+
             return Accepted();
         }
         #endregion
@@ -187,6 +206,8 @@ namespace AgroSense.Controllers
             var players = await collection
                 .Find(Builders<DbPlayer>.Filter.Empty)
                 .ToListAsync();
+
+            await amogusService.SendGameUpdate();
 
             return players.Where(p => p.IsAlive).ToList();
         }

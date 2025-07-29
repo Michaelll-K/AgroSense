@@ -1,6 +1,9 @@
 ﻿using AgroSense.Entities;
 using AgroSense.Enums;
+using AgroSense.Hubs;
 using AgroSense.Models.Admin;
+using AgroSense.Utils;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using System.Drawing;
 using System.Linq;
@@ -12,6 +15,7 @@ namespace AgroSense.Services
         private static Random random = new Random();
 
         private readonly IMongoDatabase database;
+        private readonly IHubContext<CheckGameHub, ICheckGameClient> hub;
 
         #region TasksService()
         public AmogusService(IMongoDatabase database)
@@ -152,6 +156,13 @@ namespace AgroSense.Services
                     settings
                 );
             }
+        }
+        #endregion
+
+        #region SendGameUpdate()
+        public async Task SendGameUpdate()
+        {
+            await hub.SendStatusUpdate(database);
         }
         #endregion
 

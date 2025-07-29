@@ -22,20 +22,20 @@ namespace AgroSense.Controllers
     {
         private readonly IMongoDatabase database;
         private readonly IConfiguration configuration;
-        private readonly AmogusService startService;
+        private readonly AmogusService amogusService;
 
         #region AdminController()
         public AdminController(IMongoDatabase database, IConfiguration configuration, AmogusService tasksService)
         {
             this.database = database;
             this.configuration = configuration;
-            this.startService = tasksService;
+            this.amogusService = tasksService;
         }
         #endregion
 
         #region Login()
         [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] AuthModel model)
+        public async Task<ActionResult<string>> Login([FromBody] AuthModel model)
         {
             if (model.Username != configuration["Admin:Login"] || model.Password != configuration["Admin:Password"])
             {
@@ -58,6 +58,8 @@ namespace AgroSense.Controllers
                 signingCredentials: credentials
             );
 
+            await amogusService.SendGameUpdate();
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         #endregion
@@ -67,6 +69,8 @@ namespace AgroSense.Controllers
         [HttpGet("settings")]
         public async Task<ActionResult<DbSettings>> GetSettings()
         {
+            await amogusService.SendGameUpdate();
+
             return await database.GetSettings();
         }
         #endregion
@@ -112,6 +116,8 @@ namespace AgroSense.Controllers
                 );
             }
 
+            await amogusService.SendGameUpdate();
+
             return Ok();
         }
         #endregion
@@ -126,6 +132,8 @@ namespace AgroSense.Controllers
             var players = await collection
                 .Find(Builders<DbPlayer>.Filter.Empty)
                 .ToListAsync();
+
+            await amogusService.SendGameUpdate();
 
             return players;
         }
@@ -151,6 +159,8 @@ namespace AgroSense.Controllers
                 );
             }
 
+            await amogusService.SendGameUpdate();
+
             return Accepted();
         }
         #endregion
@@ -168,7 +178,11 @@ namespace AgroSense.Controllers
                 .FirstOrDefaultAsync();
 
             if (settings is null)
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             // Pobranie graczy
             var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
@@ -178,15 +192,19 @@ namespace AgroSense.Controllers
                 .ToListAsync();
 
             if (players.Count < settings.ImpostorsAmount + settings.DetectivesAmount + settings.DoctorsAmount)
+            {
+                await amogusService.SendGameUpdate();
+
                 return BadRequest("Zbyt wiele ról na taką ilośc graczy!");
+            }
 
             // Przypisywanie ról
-            startService.DetermineRoles(settings, players);
+            amogusService.DetermineRoles(settings, players);
 
             // Zapis zmian w graczach
             foreach (var player in players)
             {
-                var playerTasks = await startService.GetTasksForPlayer(settings, players.Count);
+                var playerTasks = await amogusService.GetTasksForPlayer(settings, players.Count);
 
                 player.TasksJson = JsonSerializer.Serialize(playerTasks);
 
@@ -210,6 +228,8 @@ namespace AgroSense.Controllers
                 settings
             );
 
+            await amogusService.SendGameUpdate();
+
             return Ok();
         }
         #endregion
@@ -226,7 +246,11 @@ namespace AgroSense.Controllers
                 .FirstOrDefaultAsync();
 
             if (settings is null)
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             settings.ResetSettings();
 
@@ -234,6 +258,8 @@ namespace AgroSense.Controllers
                 Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
                 settings
             );
+
+            await amogusService.SendGameUpdate();
 
             return Ok();
         }
@@ -249,6 +275,8 @@ namespace AgroSense.Controllers
             var tasks = await collection
                 .Find(Builders<DbTask>.Filter.Empty)
                 .ToListAsync();
+
+            await amogusService.SendGameUpdate();
 
             return Ok(tasks);
         }
@@ -271,6 +299,8 @@ namespace AgroSense.Controllers
 
             await collection.InsertOneAsync(task);
 
+            await amogusService.SendGameUpdate();
+
             return Ok();
         }
         #endregion
@@ -287,6 +317,8 @@ namespace AgroSense.Controllers
             await collection.DeleteOneAsync(
                 Builders<DbTask>.Filter.Eq("_id", objectId)
             );
+
+            await amogusService.SendGameUpdate();
 
             return Accepted();
         }
