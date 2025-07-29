@@ -19,16 +19,6 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
-builder.Services.AddCors(options =>
-{
     options.AddPolicy("AllowLocalhostWithCredentials", builder =>
     {
         builder.WithOrigins("http://localhost:8080")
@@ -74,7 +64,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
 app.UseCors("AllowLocalhostWithCredentials");
 
 app.UseHttpsRedirection();
