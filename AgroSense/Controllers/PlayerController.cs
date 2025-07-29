@@ -122,7 +122,7 @@ namespace AgroSense.Controllers
         {
             var settings = await database.GetSettings();
 
-            var currentPlayer = await database.GetPlayer(name);
+            var currentPlayer = await database.GetPlayer(name, false);
 
             if (!settings.IsGameActive || currentPlayer is null || string.IsNullOrEmpty(currentPlayer.TasksJson))
                 return NotFound();
