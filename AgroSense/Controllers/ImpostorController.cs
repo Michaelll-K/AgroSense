@@ -1,7 +1,6 @@
 ﻿using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Models.Player;
-using AgroSense.Services;
 using AgroSense.Utils;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -14,13 +13,11 @@ namespace AgroSense.Controllers
     public class ImpostorController : ControllerBase
     {
         private readonly IMongoDatabase database;
-        private readonly AmogusService amogusService;
 
         #region ImpostorController()
-        public ImpostorController(IMongoDatabase database, AmogusService amogusService)
+        public ImpostorController(IMongoDatabase database)
         {
             this.database = database;
-            this.amogusService = amogusService;
         }
         #endregion
 
@@ -35,18 +32,10 @@ namespace AgroSense.Controllers
             var blackmailPlayer = await database.GetPlayer(blackmailName);
 
             if (currentPlayer is null || blackmailPlayer is null || !currentPlayer.Role.Contains(Role.Impostor.ToString()))
-            {
-                await amogusService.SendGameUpdate();
-
                 return NotFound();
-            }
 
             if (settings.IsBlackmailUsed)
-            {
-                await amogusService.SendGameUpdate();
-
                 return BadRequest("Blackmail został już wykorzystany!");
-            }
 
             blackmailPlayer.IsBlackmailed = true;
 
@@ -66,8 +55,6 @@ namespace AgroSense.Controllers
                 settings
             );
 
-            await amogusService.SendGameUpdate();
-
             return Accepted();
         }
         #endregion
@@ -81,18 +68,10 @@ namespace AgroSense.Controllers
             var currentPlayer = await database.GetPlayer(name);
 
             if (currentPlayer is null || !currentPlayer.Role.Contains(Role.ImpostorBlackmailer.ToString()))
-            {
-                await amogusService.SendGameUpdate();
-
                 return NotFound();
-            }
 
             if (settings.SabotageCooldown > DateTime.UtcNow)
-            {
-                await amogusService.SendGameUpdate();
-
                 return BadRequest("Sabotaż jeszcze się nie odnowił");
-            }
 
             settings.SabotageStartDateUtc = DateTime.UtcNow.AddMinutes(delay);
             settings.SabotageDeadline = settings.SabotageStartDateUtc.Value.AddMinutes(settings.SabotageDeadlineFromMinutes);
@@ -105,8 +84,6 @@ namespace AgroSense.Controllers
                 Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
                 settings
             );
-
-            await amogusService.SendGameUpdate();
 
             return Accepted();
         }
@@ -121,8 +98,6 @@ namespace AgroSense.Controllers
             var players = await collection
                 .Find(Builders<DbPlayer>.Filter.Empty)
                 .ToListAsync();
-
-            await amogusService.SendGameUpdate();
 
             return players.Where(p => p.IsAlive).ToList();
         }
