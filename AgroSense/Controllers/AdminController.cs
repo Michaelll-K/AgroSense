@@ -58,14 +58,7 @@ namespace AgroSense.Controllers
                 signingCredentials: credentials
             );
 
-            try
-            {
-                await amogusService.SendGameUpdate();
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            await amogusService.SendGameUpdate();
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
