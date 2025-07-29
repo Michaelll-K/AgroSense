@@ -22,7 +22,14 @@ namespace AgroSense.Middlewares
         {
             await next(context);
 
-            await hub.SendStatusUpdate(database);
+            if (context.Request.Path.StartsWithSegments("/api/admin") ||
+                context.Request.Path.StartsWithSegments("/api/hq") ||
+                context.Request.Path.StartsWithSegments("/api/impostor") ||
+                context.Request.Path.StartsWithSegments("/api/player"))
+            {
+                await hub.SendStatusUpdate(database);
+            }
+
         }
     }
 }
