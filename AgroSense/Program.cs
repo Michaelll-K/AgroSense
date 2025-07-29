@@ -27,6 +27,17 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhostWithCredentials", builder =>
+    {
+        builder.WithOrigins("http://localhost:8080")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
+
 // Rejestrowanie bazy danych
 builder.Services.AddSingleton<IMongoDatabase>(d => MongoDBService.CreateAsync(builder.Configuration));
 builder.Services.AddSingleton<AmogusService>();
@@ -64,6 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseCors("AllowLocalhostWithCredentials");
 
 app.UseHttpsRedirection();
 
