@@ -3,6 +3,8 @@ using MongoDB.Driver;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AgroSense.Hubs;
+using AgroSense.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +17,21 @@ builder.Services.AddSwaggerGen();
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Rejestrowanie bazy danych
 builder.Services.AddSingleton<IMongoDatabase>(d => MongoDBService.CreateAsync(builder.Configuration));
+builder.Services.AddSingleton<AmogusService>();
+
+builder.Services.AddSignalR();
 
 // Auth settings
 builder.Services.AddAuthentication(options =>
@@ -48,10 +63,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
+
+app.UseMiddleware<SendUpdateMiddleware>();
+
+app.MapHub<CheckGameHub>("/amogus-status-hub");
 
 app.Run();

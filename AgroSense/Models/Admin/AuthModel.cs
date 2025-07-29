@@ -1,4 +1,4 @@
-﻿namespace AgroSense.Models
+﻿namespace AgroSense.Models.Admin
 {
     public class AuthModel
     {
