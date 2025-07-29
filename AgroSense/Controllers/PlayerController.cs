@@ -54,12 +54,20 @@ namespace AgroSense.Controllers
             if (settings.IsGameActive)
             {
                 if (currentPlayer is null)
+                {
+                    await amogusService.SendGameUpdate();
+
                     return BadRequest("Nie ma takiego gracza!");
+                }
+
+                await amogusService.SendGameUpdate();
 
                 return Accepted();
             }
             else if (currentPlayer is not null)
             {
+                await amogusService.SendGameUpdate();
+
                 return BadRequest("Taki gracz już istnieje!");
             }
 
@@ -71,6 +79,8 @@ namespace AgroSense.Controllers
             };
 
             await collection.InsertOneAsync(newPlayer);
+
+            await amogusService.SendGameUpdate();
 
             return Accepted();
         }
@@ -85,7 +95,13 @@ namespace AgroSense.Controllers
             var currentPlayer = await database.GetPlayer(name, false);
 
             if (!settings.IsGameActive || currentPlayer is null || string.IsNullOrEmpty(currentPlayer.TasksJson))
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
+
+            await amogusService.SendGameUpdate();
 
             return JsonSerializer.Deserialize<List<TaskModel>>(currentPlayer.TasksJson);
         }
@@ -100,7 +116,11 @@ namespace AgroSense.Controllers
             var currentPlayer = await database.GetPlayer(name);
 
             if (!settings.IsGameActive || currentPlayer is null)
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             settings.IsCorpse = true;
             settings.CorpseReporter = name;
@@ -111,6 +131,8 @@ namespace AgroSense.Controllers
                 Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
                 settings
             );
+
+            await amogusService.SendGameUpdate();
 
             return Accepted();
         }
@@ -125,14 +147,22 @@ namespace AgroSense.Controllers
             var currentPlayer = await database.GetPlayer(name);
 
             if (!settings.IsGameActive || currentPlayer is null || string.IsNullOrEmpty(currentPlayer.TasksJson))
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             var playerTasks = JsonSerializer.Deserialize<List<TaskModel>>(currentPlayer.TasksJson);
 
             var taskToComplete = playerTasks.FirstOrDefault(t => t.Id == id);
 
             if (taskToComplete is null)
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             taskToComplete.IsCompleted = true;
 
@@ -146,7 +176,11 @@ namespace AgroSense.Controllers
             );
 
             if (currentPlayer.Role.Contains(nameof(Role.Impostor)))
+            {
+                await amogusService.SendGameUpdate();
+
                 return Ok();
+            }
 
             settings.CompletedTasksCount++;
 
@@ -159,6 +193,8 @@ namespace AgroSense.Controllers
 
             await amogusService.CheckGameAfterTask();
 
+            await amogusService.SendGameUpdate();
+
             return Accepted();
         }
         #endregion
@@ -170,7 +206,11 @@ namespace AgroSense.Controllers
             var player = await database.GetPlayer(name);
 
             if (player is null)
+            {
+                await amogusService.SendGameUpdate();
+
                 return NotFound();
+            }
 
             player.IsAlive = false;
 
@@ -182,6 +222,8 @@ namespace AgroSense.Controllers
             );
 
             await amogusService.CheckGameAfterKill();
+
+            await amogusService.SendGameUpdate();
 
             return Accepted();
         }
