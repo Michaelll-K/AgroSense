@@ -75,7 +75,7 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-//app.UseMiddleware<SendUpdateMiddleware>();
+app.UseMiddleware<SendUpdateMiddleware>();
 
 app.MapHub<CheckGameHub>("/amogus-status-hub");
 
