@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhostWithCredentials", builder =>
     {
-        builder.WithOrigins("http://localhost:8080", "https://amogus-app.vercel.app/")
+        builder.WithOrigins("http://localhost:8080", "https://amogus-app.vercel.app")
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
