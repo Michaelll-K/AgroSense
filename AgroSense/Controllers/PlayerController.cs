@@ -167,12 +167,12 @@ namespace AgroSense.Controllers
         [HttpPost("{name}/kill")]
         public async Task<ActionResult> KillPlayer(string name)
         {
-            var player = await database.GetPlayer(name);
+            var player = await database.GetPlayer(name, false);
 
             if (player is null)
                 return NotFound();
 
-            player.IsAlive = false;
+            player.IsAlive = !player.IsAlive;
 
             var collection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
 
