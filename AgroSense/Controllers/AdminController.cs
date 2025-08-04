@@ -191,6 +191,7 @@ namespace AgroSense.Controllers
                 player.TasksJson = JsonSerializer.Serialize(playerTasks);
 
                 player.IsAlive = true;
+                player.IsBlackmailed = false;
 
                 await playersCollection.ReplaceOneAsync(
                     Builders<DbPlayer>.Filter.Eq(s => s.Id, player.Id),
