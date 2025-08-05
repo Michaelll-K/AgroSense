@@ -148,7 +148,14 @@ namespace AgroSense.Controllers
             if (currentPlayer.Role.Contains(nameof(Role.Impostor)))
                 return Ok();
 
-            settings.CompletedTasksCount++;
+            // Dodawanie wszytskich tasków
+            var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
+
+            var players = await playersCollection
+                .Find(Builders<DbPlayer>.Filter.Empty)
+                .ToListAsync();
+
+            settings.CompletedTasksCount = players.SelectMany(p => JsonSerializer.Deserialize<List<TaskModel>>(p.TasksJson)).Count(t => t.IsCompleted);
 
             var settingsCollection = database.GetCollection<DbSettings>(DbSettings.DbName);
 
