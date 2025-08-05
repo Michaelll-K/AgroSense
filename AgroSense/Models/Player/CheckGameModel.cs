@@ -17,6 +17,7 @@
         public bool IsBlackmailUsed { get; set; }
         public DateTime? SabotageCooldownDateUtc { get; set; }
         public DateTime? PanicCooldown { get; set; }
+        public bool IsDetectiveUsed { get; set; }
     }
 
     public class PlayerInfo

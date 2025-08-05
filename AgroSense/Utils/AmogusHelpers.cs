@@ -53,6 +53,7 @@ namespace AgroSense.Utils
             settings.CompletedTasksCount = 0;
             settings.IsBlackmailUsed = false;
             settings.SabotageDeadline = null;
+            settings.IsDetectiveUsed = false;
         }
         #endregion
 
@@ -87,6 +88,7 @@ namespace AgroSense.Utils
                 TasksToComplete = (settings?.TaskPerPlayer ?? 0) * crewmatesCount,
                 WinningTeam = settings?.WinnigTeam,
                 IsBlackmailUsed = settings?.IsBlackmailUsed ?? false,
+                IsDetectiveUsed = settings?.IsDetectiveUsed ?? false,
                 SabotageCooldownDateUtc = settings?.SabotageCooldown,
                 PanicCooldown = settings?.PanicCooldown,
                 PlayersInfo = players.Select(p => new PlayerInfo
