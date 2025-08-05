@@ -116,6 +116,35 @@ namespace AgroSense.Controllers
         }
         #endregion
 
+        #region UseDetective()
+        [HttpPost("{name}/use-detective/{checkPlayerName}")]
+        public async Task<ActionResult<string>> UseDetective(string name, string checkPlayerName)
+        {
+            var settings = await database.GetSettings();
+
+            var currentPlayer = await database.GetPlayer(name);
+
+            var playerToCheck = await database.GetPlayer(checkPlayerName);
+
+            if (!settings.IsGameActive || currentPlayer is null || playerToCheck is null)
+                return NotFound();
+
+            if (currentPlayer.Role != nameof(Role.Detective))
+                return Ok();
+
+            settings.IsDetectiveUsed = true;
+
+            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
+
+            await collection.ReplaceOneAsync(
+                Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
+                settings
+            );
+
+            return Accepted(playerToCheck.Role);
+        }
+        #endregion
+
         #region CompleteTask()
         [HttpPost("{name}/complete-task/{id}")]
         public async Task<ActionResult> CompleteTask(string name, string id)
