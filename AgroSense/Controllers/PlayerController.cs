@@ -141,7 +141,7 @@ namespace AgroSense.Controllers
                 settings
             );
 
-            return Accepted(playerToCheck.Role);
+            return playerToCheck.Role;
         }
         #endregion
 
