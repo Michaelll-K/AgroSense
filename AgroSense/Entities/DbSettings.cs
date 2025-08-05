@@ -33,5 +33,6 @@ namespace AgroSense.Entities
         public bool IsBlackmailUsed { get; set; }
         public bool FirstO2 { get; set; }
         public bool SecondO2 { get; set; }
+        public bool IsDetectiveUsed { get; set; }
     }
 }
