@@ -67,7 +67,7 @@ namespace AgroSense.Controllers
 
             var currentPlayer = await database.GetPlayer(name);
 
-            if (currentPlayer is null || !currentPlayer.Role.Contains(Role.ImpostorBlackmailer.ToString()))
+            if (currentPlayer is null || !currentPlayer.Role.Contains(Role.Impostor.ToString()))
                 return NotFound();
 
             if (settings.SabotageCooldown > DateTime.UtcNow)
