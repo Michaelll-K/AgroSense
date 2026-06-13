@@ -1,33 +1,32 @@
-﻿using AgroSense.Entities;
+using Azure;
+using Azure.Data.Tables;
+using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Models.Admin;
-using MongoDB.Driver;
-using System.Drawing;
-using System.Linq;
 
 namespace AgroSense.Services
 {
     public class AmogusService
     {
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
-        private readonly IMongoDatabase database;
+        private readonly TableServiceClient tableService;
 
-        #region TasksService()
-        public AmogusService(IMongoDatabase database)
+        #region AmogusService()
+        public AmogusService(TableServiceClient tableService)
         {
-            this.database = database;
+            this.tableService = tableService;
         }
         #endregion
 
-        #region GetTasksForUser()
+        #region GetTasksForPlayer()
         public async Task<List<TaskModel>> GetTasksForPlayer(DbSettings settings, int playersCount)
         {
-            var taksCollection = database.GetCollection<DbTask>(DbTask.DbName);
+            var tableClient = tableService.GetTableClient(DbTask.TableName);
 
-            var tasks = await taksCollection
-                .Find(Builders<DbTask>.Filter.Empty)
-                .ToListAsync();
+            var tasks = new List<DbTask>();
+            await foreach (var task in tableClient.QueryAsync<DbTask>())
+                tasks.Add(task);
 
             if (settings.TaskPerPlayer > tasks.Count)
                 throw new ArgumentException("Żądana liczba elementów jest większa niż liczba dostępnych elementów.");
@@ -53,9 +52,7 @@ namespace AgroSense.Services
             var rolesGranted = 0;
 
             foreach (var player in players)
-            {
                 player.Role = nameof(Role.Crewmate);
-            }
 
             Shuffle(players);
 
@@ -70,57 +67,45 @@ namespace AgroSense.Services
             rolesGranted += settings.ImpostorsAmount;
 
             for (int i = 0; i < settings.DetectivesAmount; i++)
-            {
                 players[i + rolesGranted].Role = nameof(Role.Detective);
-            }
 
             rolesGranted += settings.DetectivesAmount;
 
             for (int i = 0; i < settings.DoctorsAmount; i++)
-            {
                 players[i + rolesGranted].Role = nameof(Role.Doctor);
-            }
         }
         #endregion
 
         #region CheckGameAfterKill()
         public async Task CheckGameAfterKill()
         {
-            var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
 
-            var players = await playersCollection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
-
-            var aliveCrewamtes = players.Count(p => p.IsAlive && !p.Role.Contains(Role.Impostor.ToString()));
-
+            var aliveCrewmates = players.Count(p => p.IsAlive && !p.Role.Contains(Role.Impostor.ToString()));
             var aliveImpostors = players.Count(p => p.IsAlive && p.Role.Contains(Role.Impostor.ToString()));
 
-            var settingsCollection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            var settings = await settingsCollection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
+            var settingsClient = tableService.GetTableClient(DbSettings.TableName);
+            DbSettings settings;
+            try
+            {
+                settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException) { return; }
 
             if (aliveImpostors <= 0)
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Crewmate.ToString();
-                
-                await settingsCollection.ReplaceOneAsync(
-                    Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                    settings
-                );
+                await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
-            else if (aliveImpostors >= aliveCrewamtes)
+            else if (aliveImpostors >= aliveCrewmates)
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Impostor.ToString();
-
-                await settingsCollection.ReplaceOneAsync(
-                    Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                    settings
-                );
+                await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
         }
         #endregion
@@ -128,17 +113,18 @@ namespace AgroSense.Services
         #region CheckGameAfterTask()
         public async Task CheckGameAfterTask()
         {
-            var settingsCollection = database.GetCollection<DbSettings>(DbSettings.DbName);
+            var settingsClient = tableService.GetTableClient(DbSettings.TableName);
+            DbSettings settings;
+            try
+            {
+                settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException) { return; }
 
-            var settings = await settingsCollection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
-
-            var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
-
-            var players = await playersCollection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
 
             var crewmatesCount = players.Count(p => !p.Role.Contains(Role.Impostor.ToString()));
 
@@ -146,11 +132,7 @@ namespace AgroSense.Services
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Crewmate.ToString();
-
-                await settingsCollection.ReplaceOneAsync(
-                    Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                    settings
-                );
+                await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
         }
         #endregion
@@ -158,7 +140,6 @@ namespace AgroSense.Services
         static void Shuffle<T>(List<T> list)
         {
             int n = list.Count;
-
             while (n > 1)
             {
                 Random rng = new Random();

@@ -1,33 +1,37 @@
-﻿using AgroSense.Entities;
+using Azure;
+using Azure.Data.Tables;
+using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Hubs;
 using AgroSense.Models.Player;
 using Microsoft.AspNetCore.SignalR;
-using MongoDB.Driver;
 
 namespace AgroSense.Utils
 {
     public static class AmogusHelpers
     {
         #region GetSettings()
-        public static async Task<DbSettings> GetSettings(this IMongoDatabase database)
+        public static async Task<DbSettings> GetSettings(this TableServiceClient tableService)
         {
-            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            return await collection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            try
+            {
+                return (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return null!;
+            }
         }
         #endregion
 
         #region GetPlayer()
-        public static async Task<DbPlayer> GetPlayer(this IMongoDatabase database, string name, bool aliveOnly = true)
+        public static async Task<DbPlayer?> GetPlayer(this TableServiceClient tableService, string name, bool aliveOnly = true)
         {
-            var collection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
-
-            var players = await collection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in tableClient.QueryAsync<DbPlayer>())
+                players.Add(player);
 
             if (aliveOnly)
                 return players.FirstOrDefault(p => p.Name.ToLower() == name.ToLower() && p.IsAlive);
@@ -58,19 +62,20 @@ namespace AgroSense.Utils
         #endregion
 
         #region SendStatusUpdate()
-        public static async Task SendStatusUpdate(this IHubContext<CheckGameHub, ICheckGameClient> hub, IMongoDatabase database)
+        public static async Task SendStatusUpdate(this IHubContext<CheckGameHub, ICheckGameClient> hub, TableServiceClient tableService)
         {
-            var settingsCollection = database.GetCollection<DbSettings>(DbSettings.DbName);
+            DbSettings? settings = null;
+            try
+            {
+                var settingsClient = tableService.GetTableClient(DbSettings.TableName);
+                settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException) { }
 
-            var settings = await settingsCollection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
-
-            var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
-
-            var players = await playersCollection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
 
             var crewmatesCount = players.Count(p => !p.Role.Contains(Role.Impostor.ToString()));
 

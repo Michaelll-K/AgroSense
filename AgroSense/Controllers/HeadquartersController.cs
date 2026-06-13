@@ -1,10 +1,9 @@
-﻿using AgroSense.Entities;
+using Azure;
+using Azure.Data.Tables;
+using AgroSense.Entities;
 using AgroSense.Enums;
-using AgroSense.Models.Player;
 using AgroSense.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 
 namespace AgroSense.Controllers
 {
@@ -12,12 +11,12 @@ namespace AgroSense.Controllers
     [Route("api/hq")]
     public class HeadquartersController : ControllerBase
     {
-        private readonly IMongoDatabase database;
+        private readonly TableServiceClient tableService;
 
         #region HeadquartersController()
-        public HeadquartersController(IMongoDatabase database)
+        public HeadquartersController(TableServiceClient tableService)
         {
-            this.database = database;
+            this.tableService = tableService;
         }
         #endregion
 
@@ -25,16 +24,13 @@ namespace AgroSense.Controllers
         [HttpPost("{name}/start-panic")]
         public async Task<ActionResult<DateTime>> StartPanic(string name)
         {
-            var player = await database.GetPlayer(name);
+            var player = await tableService.GetPlayer(name);
 
             if (player is null)
                 return NotFound();
 
-            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            var settings = await collection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
 
             if (settings.PanicCooldown > DateTime.UtcNow)
                 return BadRequest("Przycisk paniki jeszcze się nie odnowił!");
@@ -42,10 +38,7 @@ namespace AgroSense.Controllers
             settings.IsPanic = true;
             settings.PanicReporter = name;
 
-            await collection.ReplaceOneAsync(
-                Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                settings
-            );
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
             return Accepted();
         }
@@ -55,36 +48,25 @@ namespace AgroSense.Controllers
         [HttpPost("end-panic")]
         public async Task<ActionResult<DateTime>> EndPanic()
         {
-            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            var settings = await collection
-                .Find(Builders<DbSettings>.Filter.Empty)
-                .FirstOrDefaultAsync();
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
 
             settings.IsPanic = false;
             settings.PanicCooldown = DateTime.UtcNow.AddMinutes(settings.PanicCooldownFromMinutes);
             settings.IsCorpse = false;
             settings.IsBlackmailUsed = false;
 
-            await collection.ReplaceOneAsync(
-                Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                settings
-            );
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
-            var playersCollection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
-
-            var players = await playersCollection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
 
             foreach (var player in players)
             {
                 player.IsBlackmailed = false;
-
-                await playersCollection.ReplaceOneAsync(
-                    Builders<DbPlayer>.Filter.Eq(s => s.Id, player.Id),
-                    player
-                );
+                await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
             }
 
             return Accepted();
@@ -95,19 +77,15 @@ namespace AgroSense.Controllers
         [HttpGet("check-sabotage")]
         public async Task<ActionResult> CheckSabotage()
         {
-            var settings = await database.GetSettings();
+            var settings = await tableService.GetSettings();
 
             if (settings.SabotageDeadline <= DateTime.UtcNow)
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Impostor.ToString();
 
-                var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-                await collection.ReplaceOneAsync(
-                    Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                    settings
-                );
+                var tableClient = tableService.GetTableClient(DbSettings.TableName);
+                await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
 
             return Ok();
@@ -118,7 +96,7 @@ namespace AgroSense.Controllers
         [HttpPost("firstO2/{isPressed}")]
         public async Task<ActionResult> FirstO2(bool isPressed)
         {
-            var settings = await database.GetSettings();
+            var settings = await tableService.GetSettings();
 
             if (!settings.SabotageDeadline.HasValue)
                 return Ok();
@@ -128,19 +106,13 @@ namespace AgroSense.Controllers
             if (settings.FirstO2 && settings.SecondO2)
             {
                 settings.SabotageDeadline = null;
-
                 settings.FirstO2 = false;
                 settings.SecondO2 = false;
-
                 settings.SabotageCooldown = DateTime.UtcNow.AddMinutes(settings.SabotageCooldownFromMinutes);
             }
 
-            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            await collection.ReplaceOneAsync(
-                Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                settings
-            );
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
             return Accepted();
         }
@@ -150,7 +122,7 @@ namespace AgroSense.Controllers
         [HttpPost("secondO2/{isPressed}")]
         public async Task<ActionResult> SecondO2(bool isPressed)
         {
-            var settings = await database.GetSettings();
+            var settings = await tableService.GetSettings();
 
             if (!settings.SabotageDeadline.HasValue)
                 return Ok();
@@ -160,19 +132,13 @@ namespace AgroSense.Controllers
             if (settings.FirstO2 && settings.SecondO2)
             {
                 settings.SabotageDeadline = null;
-
                 settings.FirstO2 = false;
                 settings.SecondO2 = false;
-
                 settings.SabotageCooldown = DateTime.UtcNow.AddMinutes(settings.SabotageCooldownFromMinutes);
             }
 
-            var collection = database.GetCollection<DbSettings>(DbSettings.DbName);
-
-            await collection.ReplaceOneAsync(
-                Builders<DbSettings>.Filter.Eq(s => s.Id, settings.Id),
-                settings
-            );
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
             return Accepted();
         }
@@ -182,12 +148,10 @@ namespace AgroSense.Controllers
         [HttpGet("alive-players")]
         public async Task<ActionResult<List<DbPlayer>>> GetPlayers()
         {
-            var collection = database.GetCollection<DbPlayer>(DbPlayer.DbName);
-
-            var players = await collection
-                .Find(Builders<DbPlayer>.Filter.Empty)
-                .ToListAsync();
-
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in tableClient.QueryAsync<DbPlayer>())
+                players.Add(player);
             return players.Where(p => p.IsAlive).ToList();
         }
         #endregion

@@ -1,18 +1,28 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+using Azure;
+using Azure.Data.Tables;
+using System.Text.Json.Serialization;
 
 namespace AgroSense.Entities
 {
-    public class DbPlayer
+    public class DbPlayer : ITableEntity
     {
-        public static string DbName => nameof(DbPlayer).ToLower();
+        public static string TableName => "Player";
 
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public string TasksJson { get; set; }
+        public string PartitionKey { get; set; } = "Player";
+        public string RowKey { get; set; } = string.Empty;
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
+
+        [JsonIgnore]
+        public string Id
+        {
+            get => RowKey;
+            set => RowKey = value;
+        }
+
+        public string Name { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string? TasksJson { get; set; }
         public bool IsAlive { get; set; }
         public bool IsBlackmailed { get; set; }
     }

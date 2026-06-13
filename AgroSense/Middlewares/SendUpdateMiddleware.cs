@@ -1,7 +1,7 @@
-﻿using AgroSense.Hubs;
+using Azure.Data.Tables;
+using AgroSense.Hubs;
 using AgroSense.Utils;
 using Microsoft.AspNetCore.SignalR;
-using MongoDB.Driver;
 
 namespace AgroSense.Middlewares
 {
@@ -9,13 +9,13 @@ namespace AgroSense.Middlewares
     {
         private readonly RequestDelegate next;
         private readonly IHubContext<CheckGameHub, ICheckGameClient> hub;
-        private readonly IMongoDatabase database;
+        private readonly TableServiceClient tableService;
 
-        public SendUpdateMiddleware(RequestDelegate next, IHubContext<CheckGameHub, ICheckGameClient> hub, IMongoDatabase database)
+        public SendUpdateMiddleware(RequestDelegate next, IHubContext<CheckGameHub, ICheckGameClient> hub, TableServiceClient tableService)
         {
             this.next = next;
             this.hub = hub;
-            this.database = database;
+            this.tableService = tableService;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -27,9 +27,8 @@ namespace AgroSense.Middlewares
                 context.Request.Path.StartsWithSegments("/api/impostor") ||
                 context.Request.Path.StartsWithSegments("/api/player"))
             {
-                await hub.SendStatusUpdate(database);
+                await hub.SendStatusUpdate(tableService);
             }
-
         }
     }
 }

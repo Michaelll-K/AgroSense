@@ -1,5 +1,5 @@
 using AgroSense.Services;
-using MongoDB.Driver;
+using Azure.Data.Tables;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -8,10 +8,7 @@ using AgroSense.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -28,8 +25,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Rejestrowanie bazy danych
-builder.Services.AddSingleton<IMongoDatabase>(d => MongoDBService.CreateAsync(builder.Configuration));
+// Rejestrowanie Azure Table Storage
+builder.Services.AddSingleton<TableServiceClient>(d => AzureTableService.Create(builder.Configuration));
 builder.Services.AddSingleton<AmogusService>();
 
 builder.Services.AddSignalR();
@@ -57,7 +54,6 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -65,18 +61,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-
 app.UseCors("AllowLocalhostWithCredentials");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseHttpsRedirection();
-
 app.MapControllers();
-
 app.UseMiddleware<SendUpdateMiddleware>();
-
 app.MapHub<CheckGameHub>("/amogus-status-hub");
 
 app.Run();
