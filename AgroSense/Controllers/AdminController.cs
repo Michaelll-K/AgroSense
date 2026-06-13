@@ -83,7 +83,8 @@ namespace AgroSense.Controllers
 
             settings.ResetSettings();
 
-            settings.TaskPerPlayer = model.TaskPerPlayer;
+            settings.ShortTasksPerPlayer = model.ShortTasksPerPlayer;
+            settings.LongTasksPerPlayer = model.LongTasksPerPlayer;
             settings.SabotageDeadlineFromMinutes = model.SabotageDeadlineFromMinutes;
             settings.ImpostorsAmount = model.ImpostorsAmount;
             settings.DetectivesAmount = model.DetectivesAmount;
@@ -224,7 +225,8 @@ namespace AgroSense.Controllers
                 RowKey = Guid.NewGuid().ToString(),
                 Name = model.Name,
                 Location = model.Location,
-                Description = model.Description
+                Description = model.Description,
+                TaskLength = model.TaskLength
             };
 
             await tableClient.AddEntityAsync(task);

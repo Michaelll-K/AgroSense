@@ -90,7 +90,7 @@ namespace AgroSense.Utils
                 CorpseReporter = settings?.CorpseReporter,
                 SabotageDeadlineDateUtc = settings?.SabotageDeadline,
                 CompletedTasks = settings?.CompletedTasksCount ?? 0,
-                TasksToComplete = (settings?.TaskPerPlayer ?? 0) * crewmatesCount,
+                TasksToComplete = (settings?.TasksPerPlayer ?? 0) * crewmatesCount,
                 WinningTeam = settings?.WinnigTeam,
                 IsBlackmailUsed = settings?.IsBlackmailUsed ?? false,
                 IsDetectiveUsed = settings?.IsDetectiveUsed ?? false,

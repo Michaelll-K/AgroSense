@@ -28,12 +28,13 @@ namespace AgroSense.Services
             await foreach (var task in tableClient.QueryAsync<DbTask>())
                 tasks.Add(task);
 
-            if (settings.TaskPerPlayer > tasks.Count)
+            if (settings.TasksPerPlayer > tasks.Count)
                 throw new ArgumentException("Żądana liczba elementów jest większa niż liczba dostępnych elementów.");
 
-            return tasks
+            var shortTasks = tasks
+                .Where(t => t.TaskLength == TaskLength.Short)
                 .OrderBy(t => random.Next())
-                .Take(settings.TaskPerPlayer)
+                .Take(settings.ShortTasksPerPlayer)
                 .Select(t => new TaskModel
                 {
                     Id = t.Id,
@@ -43,6 +44,24 @@ namespace AgroSense.Services
                     IsCompleted = false
                 })
                 .ToList();
+
+            var longTasks = tasks
+                .Where(t => t.TaskLength == TaskLength.Long)
+                .OrderBy(t => random.Next())
+                .Take(settings.ShortTasksPerPlayer)
+                .Select(t => new TaskModel
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Location = t.Location,
+                    Description = t.Description,
+                    IsCompleted = false
+                })
+                .ToList();
+
+            shortTasks.AddRange(longTasks);
+
+            return shortTasks.OrderBy(t => random.Next()).ToList();
         }
         #endregion
 
@@ -128,7 +147,7 @@ namespace AgroSense.Services
 
             var crewmatesCount = players.Count(p => !p.Role.Contains(Role.Impostor.ToString()));
 
-            if (settings.CompletedTasksCount >= settings.TaskPerPlayer * crewmatesCount)
+            if (settings.CompletedTasksCount >= settings.TasksPerPlayer * crewmatesCount)
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Crewmate.ToString();

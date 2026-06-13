@@ -1,4 +1,6 @@
-﻿namespace AgroSense.Models.Admin
+﻿using AgroSense.Enums;
+
+namespace AgroSense.Models.Admin
 {
     public class TaskModel
     {
@@ -7,5 +9,6 @@
         public string Location { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
+        public TaskLength TaskLength { get; set; }
     }
 }

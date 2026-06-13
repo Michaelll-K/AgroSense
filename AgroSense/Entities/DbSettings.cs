@@ -20,8 +20,15 @@ namespace AgroSense.Entities
             set => RowKey = value;
         }
 
+        [JsonIgnore]
+        public int TasksPerPlayer 
+        { 
+            get => ShortTasksPerPlayer + LongTasksPerPlayer; 
+        }
+
+        public int ShortTasksPerPlayer { get; set; } = 1;
+        public int LongTasksPerPlayer { get; set; } = 1;
         public bool IsGameActive { get; set; }
-        public int TaskPerPlayer { get; set; } = 1;
         public int ImpostorsAmount { get; set; } = 1;
         public int DetectivesAmount { get; set; } = 0;
         public int DoctorsAmount { get; set; } = 0;

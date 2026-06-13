@@ -1,3 +1,4 @@
+using AgroSense.Enums;
 using Azure;
 using Azure.Data.Tables;
 using System.Text.Json.Serialization;
@@ -23,5 +24,6 @@ namespace AgroSense.Entities
         public string Name { get; set; } = string.Empty;
         public string? Location { get; set; }
         public string? Description { get; set; }
+        public TaskLength TaskLength { get; set; }
     }
 }
