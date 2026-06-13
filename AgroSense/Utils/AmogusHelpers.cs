@@ -20,7 +20,7 @@ namespace AgroSense.Utils
             }
             catch (RequestFailedException ex) when (ex.Status == 404)
             {
-                return null!;
+                return new DbSettings();
             }
         }
         #endregion
