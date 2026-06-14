@@ -87,8 +87,13 @@ namespace AgroSense.Controllers
             settings.LongTasksPerPlayer = model.LongTasksPerPlayer;
             settings.SabotageDeadlineFromMinutes = model.SabotageDeadlineFromMinutes;
             settings.ImpostorsAmount = model.ImpostorsAmount;
-            settings.DetectivesAmount = model.DetectivesAmount;
-            settings.DoctorsAmount = model.DoctorsAmount;
+            settings.ImpostorBlackmailerChance = model.ImpostorBlackmailerChance;
+            settings.ImpostorSniperChance = model.ImpostorSniperChance;
+            settings.DetectiveChance = model.DetectiveChance;
+            settings.DoctorChance = model.DoctorChance;
+            settings.JesterChance = model.JesterChance;
+            settings.RenegateChance = model.RenegateChance;
+
             settings.IsPanic = false;
             settings.PanicCooldown = DateTime.UtcNow;
             settings.SabotageCooldown = DateTime.UtcNow;
@@ -152,8 +157,8 @@ namespace AgroSense.Controllers
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            if (players.Count < settings.ImpostorsAmount + settings.DetectivesAmount + settings.DoctorsAmount)
-                return BadRequest("Zbyt wiele ról na taką ilośc graczy!");
+            if (players.Count / 2 < settings.ImpostorsAmount)
+                return BadRequest("Zbyt wiele impostorów na taką ilość graczy!");
 
             startService.DetermineRoles(settings, players);
 

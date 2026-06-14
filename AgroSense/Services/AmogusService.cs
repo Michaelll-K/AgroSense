@@ -68,30 +68,58 @@ namespace AgroSense.Services
         #region DetermineRoles()
         public void DetermineRoles(DbSettings settings, List<DbPlayer> players)
         {
-            var rolesGranted = 0;
-
             foreach (var player in players)
                 player.Role = nameof(Role.Crewmate);
 
             Shuffle(players);
 
+            // Specjalne role impostora — każda może wystąpić co najwyżej raz
+            var specialImpostorRoles = new List<(string Role, int Chance)>
+            {
+                (nameof(Role.ImpostorBlackmailer), settings.ImpostorBlackmailerChance),
+                (nameof(Role.ImpostorSniper),      settings.ImpostorSniperChance),
+            };
+            var usedImpostorRoles = new HashSet<string>();
+
             for (int i = 0; i < settings.ImpostorsAmount; i++)
             {
-                if (i == 0)
-                    players[i].Role = nameof(Role.ImpostorBlackmailer);
-                else
-                    players[i].Role = nameof(Role.Impostor);
+                var assignedRole = nameof(Role.Impostor);
+
+                foreach (var (role, chance) in specialImpostorRoles)
+                {
+                    if (!usedImpostorRoles.Contains(role) && random.Next(100) < chance)
+                    {
+                        assignedRole = role;
+                        usedImpostorRoles.Add(role);
+                        break;
+                    }
+                }
+
+                players[i].Role = assignedRole;
             }
 
-            rolesGranted += settings.ImpostorsAmount;
+            // Specjalne role crewmate/neutralne — każda może wystąpić co najwyżej raz
+            var specialCrewmateRoles = new List<(string Role, int Chance)>
+            {
+                (nameof(Role.Detective), settings.DetectiveChance),
+                (nameof(Role.Doctor),    settings.DoctorChance),
+                (nameof(Role.Jester),    settings.JesterChance),
+                (nameof(Role.Renegate),  settings.RenegateChance),
+            };
 
-            for (int i = 0; i < settings.DetectivesAmount; i++)
-                players[i + rolesGranted].Role = nameof(Role.Detective);
+            int crewmateIndex = settings.ImpostorsAmount;
 
-            rolesGranted += settings.DetectivesAmount;
+            foreach (var (role, chance) in specialCrewmateRoles)
+            {
+                if (crewmateIndex >= players.Count)
+                    break;
 
-            for (int i = 0; i < settings.DoctorsAmount; i++)
-                players[i + rolesGranted].Role = nameof(Role.Doctor);
+                if (random.Next(100) < chance)
+                {
+                    players[crewmateIndex].Role = role;
+                    crewmateIndex++;
+                }
+            }
         }
         #endregion
 

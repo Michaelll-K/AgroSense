@@ -30,8 +30,12 @@ namespace AgroSense.Entities
         public int LongTasksPerPlayer { get; set; } = 1;
         public bool IsGameActive { get; set; }
         public int ImpostorsAmount { get; set; } = 1;
-        public int DetectivesAmount { get; set; } = 0;
-        public int DoctorsAmount { get; set; } = 0;
+        public int ImpostorBlackmailerChance { get; set; } = 0;
+        public int ImpostorSniperChance { get; set; } = 0;
+        public int DetectiveChance { get; set; } = 0;
+        public int DoctorChance { get; set; } = 0;
+        public int JesterChance { get; set; } = 0;
+        public int RenegateChance { get; set; } = 0;
         public bool IsPanic { get; set; } = false;
         public string? PanicReporter { get; set; }
         public bool IsCorpse { get; set; } = false;
