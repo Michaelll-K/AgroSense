@@ -156,6 +156,23 @@ namespace AgroSense.Services
         }
         #endregion
 
+        #region JesterWins()
+        public async Task JesterWins()
+        {
+            var settingsClient = tableService.GetTableClient(DbSettings.TableName);
+            DbSettings settings;
+            try
+            {
+                settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException) { return; }
+
+            settings.IsGameActive = false;
+            settings.WinnigTeam = Role.Jester.ToString();
+            await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+        }
+        #endregion
+
         static void Shuffle<T>(List<T> list)
         {
             int n = list.Count;

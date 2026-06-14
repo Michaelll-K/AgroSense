@@ -5,7 +5,12 @@
         Crewmate,
         Impostor,
         ImpostorBlackmailer,
+        ImpostorSniper,
         Detective,
-        Doctor
+        Doctor,
+        Mayor,
+        Sheriff,
+        Jester,
+        Renegate
     }
 }
