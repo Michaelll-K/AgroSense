@@ -103,6 +103,8 @@ namespace AgroSense.Services
             {
                 (nameof(Role.Detective), settings.DetectiveChance),
                 (nameof(Role.Doctor),    settings.DoctorChance),
+                (nameof(Role.Mayor),     settings.MayorChance),
+                (nameof(Role.Sheriff),   settings.SheriffChance),
                 (nameof(Role.Jester),    settings.JesterChance),
                 (nameof(Role.Renegate),  settings.RenegateChance),
             };

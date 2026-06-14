@@ -34,6 +34,8 @@ namespace AgroSense.Entities
         public int ImpostorSniperChance { get; set; } = 0;
         public int DetectiveChance { get; set; } = 0;
         public int DoctorChance { get; set; } = 0;
+        public int MayorChance { get; set; } = 0;
+        public int SheriffChance { get; set; } = 0;
         public int JesterChance { get; set; } = 0;
         public int RenegateChance { get; set; } = 0;
         public bool IsPanic { get; set; } = false;

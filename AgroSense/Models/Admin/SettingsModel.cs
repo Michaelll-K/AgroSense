@@ -9,6 +9,8 @@
         public int ImpostorSniperChance { get; set; }
         public int DetectiveChance { get; set; }
         public int DoctorChance { get; set; }
+        public int MayorChance { get; set; }
+        public int SheriffChance { get; set; }
         public int JesterChance { get; set; }
         public int RenegateChance { get; set; }
         public int PanicCooldownFromMinutes { get; set; }

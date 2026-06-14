@@ -91,6 +91,8 @@ namespace AgroSense.Controllers
             settings.ImpostorSniperChance = model.ImpostorSniperChance;
             settings.DetectiveChance = model.DetectiveChance;
             settings.DoctorChance = model.DoctorChance;
+            settings.MayorChance = model.MayorChance;
+            settings.SheriffChance = model.SheriffChance;
             settings.JesterChance = model.JesterChance;
             settings.RenegateChance = model.RenegateChance;
 
