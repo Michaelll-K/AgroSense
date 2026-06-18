@@ -138,7 +138,6 @@ namespace AgroSense.Controllers
             if (currentPlayer.Role != nameof(Role.ImpostorSniper))
                 return Ok();
 
-            settings.IsSniperUsed = true;
 
             var result = true;
 
@@ -149,6 +148,9 @@ namespace AgroSense.Controllers
                 await KillPlayer(currentPlayer.Name);
                 result = false;
             }
+
+            settings = await tableService.GetSettings();
+            settings.IsSniperUsed = true;
 
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
@@ -171,8 +173,6 @@ namespace AgroSense.Controllers
             if (currentPlayer.Role != nameof(Role.Sheriff))
                 return Ok();
 
-            settings.IsSheriffUsed = true;
-
             var result = true;
 
             if (playerToShoot.Role.Contains(nameof(Role.Impostor)))
@@ -182,6 +182,9 @@ namespace AgroSense.Controllers
                 await KillPlayer(currentPlayer.Name);
                 result = false;
             }
+
+            settings = await tableService.GetSettings();
+            settings.IsSheriffUsed = true;
 
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
