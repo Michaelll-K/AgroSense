@@ -223,8 +223,13 @@ namespace AgroSense.Controllers
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            settings.CompletedTasksCount = players
-                .Where(p => !string.IsNullOrEmpty(p.TasksJson))
+            settings.CompletedTasksCount = players 
+                .Where(p => 
+                    !string.IsNullOrEmpty(p.TasksJson) && 
+                    !p.Role.Contains(nameof(Role.Impostor)) &&
+                    !p.Role.Contains(nameof(Role.Jester)) &&
+                    !p.Role.Contains(nameof(Role.Renegate))
+                )
                 .SelectMany(p => JsonSerializer.Deserialize<List<TaskModel>>(p.TasksJson)!)
                 .Count(t => t.IsCompleted);
 

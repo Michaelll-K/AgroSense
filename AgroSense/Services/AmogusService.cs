@@ -179,7 +179,10 @@ namespace AgroSense.Services
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var crewmatesCount = players.Count(p => !p.Role.Contains(Role.Impostor.ToString()));
+            var crewmatesCount = players.Count(p => 
+                !p.Role.Contains(nameof(Role.Impostor)) &&
+                !p.Role.Contains(nameof(Role.Jester)) &&
+                !p.Role.Contains(nameof(Role.Renegate)));
 
             if (settings.CompletedTasksCount >= settings.TasksPerPlayer * crewmatesCount)
             {
