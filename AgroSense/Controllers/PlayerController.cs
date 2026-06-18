@@ -126,7 +126,7 @@ namespace AgroSense.Controllers
 
         #region UseSniper()
         [HttpPost("{name}/use-sniper/{shotPlayerName}")]
-        public async Task<ActionResult> UseSniper(string name, string shotPlayerName, string guesedRole)
+        public async Task<ActionResult<bool>> UseSniper(string name, string shotPlayerName, string guesedRole)
         {
             var settings = await tableService.GetSettings();
             var currentPlayer = await tableService.GetPlayer(name);
@@ -140,21 +140,26 @@ namespace AgroSense.Controllers
 
             settings.IsSniperUsed = true;
 
+            var result = true;
+
             if (guesedRole == playerToShoot.Role)
                 await KillPlayer(playerToShoot.Name);
             else
+            {
                 await KillPlayer(currentPlayer.Name);
+                result = false;
+            }
 
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
-            return Ok();
+            return Ok(result);
         }
         #endregion
 
         #region UseSheriff()
         [HttpPost("{name}/use-sheriff/{shotPlayerName}")]
-        public async Task<ActionResult> UseSheriff(string name, string shotPlayerName)
+        public async Task<ActionResult<bool>> UseSheriff(string name, string shotPlayerName)
         {
             var settings = await tableService.GetSettings();
             var currentPlayer = await tableService.GetPlayer(name);
@@ -168,15 +173,20 @@ namespace AgroSense.Controllers
 
             settings.IsSheriffUsed = true;
 
+            var result = true;
+
             if (playerToShoot.Role.Contains(nameof(Role.Impostor)))
                 await KillPlayer(playerToShoot.Name);
             else
+            {
                 await KillPlayer(currentPlayer.Name);
+                result = false;
+            }
 
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
-            return Ok();
+            return Ok(result);
         }
         #endregion
 
