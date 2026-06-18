@@ -100,6 +100,7 @@ namespace AgroSense.Utils
                 IsSheriffUsed = settings?.IsSheriffUsed ?? false,
                 SabotageCooldownDateUtc = settings?.SabotageCooldown,
                 PanicCooldown = settings?.PanicCooldown,
+                MeetingDurationFromMinutes = settings?.MeetingDurationFromMinutes ?? 0,
                 PlayersInfo = players.Select(p => new PlayerInfo
                 {
                     Name = p.Name,

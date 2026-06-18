@@ -51,6 +51,7 @@ namespace AgroSense.Entities
         public DateTime? SabotageDeadline { get; set; }
         public int SabotageDeadlineFromMinutes { get; set; }
         public int SabotageCooldownFromMinutes { get; set; }
+        public int MeetingDurationFromMinutes { get; set; }
         public string? WinnigTeam { get; set; }
         public int CompletedTasksCount { get; set; }
         public bool IsBlackmailUsed { get; set; }

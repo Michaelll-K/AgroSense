@@ -101,6 +101,7 @@ namespace AgroSense.Controllers
             settings.SabotageCooldown = DateTime.UtcNow;
             settings.PanicCooldownFromMinutes = model.PanicCooldownFromMinutes;
             settings.SabotageCooldownFromMinutes = model.SabotageCooldownFromMinutes;
+            settings.MeetingDurationFromMinutes = model.MeetingDurationFromMinutes;
 
             await tableClient.UpsertEntityAsync(settings, TableUpdateMode.Replace);
 

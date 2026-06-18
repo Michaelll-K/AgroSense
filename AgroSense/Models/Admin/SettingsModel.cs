@@ -16,5 +16,6 @@
         public int PanicCooldownFromMinutes { get; set; }
         public int SabotageCooldownFromMinutes { get; set; }
         public int SabotageDeadlineFromMinutes { get; set; }
+        public int MeetingDurationFromMinutes { get; set; }
     }
 }
