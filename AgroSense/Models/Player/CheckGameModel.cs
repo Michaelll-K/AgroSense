@@ -18,6 +18,8 @@
         public DateTime? SabotageCooldownDateUtc { get; set; }
         public DateTime? PanicCooldown { get; set; }
         public bool IsDetectiveUsed { get; set; }
+        public bool IsSniperUsed { get; set; }
+        public bool IsSheriffUsed { get; set; }
     }
 
     public class PlayerInfo

@@ -144,6 +144,8 @@ namespace AgroSense.Services
             }
             catch (RequestFailedException) { return; }
 
+            // TODO: dodanie logiki renegata
+
             if (aliveImpostors <= 0)
             {
                 settings.IsGameActive = false;

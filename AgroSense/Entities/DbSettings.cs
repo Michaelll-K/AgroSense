@@ -57,5 +57,7 @@ namespace AgroSense.Entities
         public bool FirstO2 { get; set; }
         public bool SecondO2 { get; set; }
         public bool IsDetectiveUsed { get; set; }
+        public bool IsSniperUsed { get; set; } = false;
+        public bool IsSheriffUsed { get; set; } = false;
     }
 }

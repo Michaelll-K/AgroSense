@@ -58,6 +58,8 @@ namespace AgroSense.Utils
             settings.IsBlackmailUsed = false;
             settings.SabotageDeadline = null;
             settings.IsDetectiveUsed = false;
+            settings.IsSniperUsed = false;
+            settings.IsSheriffUsed = false;
         }
         #endregion
 
@@ -94,6 +96,8 @@ namespace AgroSense.Utils
                 WinningTeam = settings?.WinnigTeam,
                 IsBlackmailUsed = settings?.IsBlackmailUsed ?? false,
                 IsDetectiveUsed = settings?.IsDetectiveUsed ?? false,
+                IsSniperUsed = settings?.IsSniperUsed ?? false,
+                IsSheriffUsed = settings?.IsSheriffUsed ?? false,
                 SabotageCooldownDateUtc = settings?.SabotageCooldown,
                 PanicCooldown = settings?.PanicCooldown,
                 PlayersInfo = players.Select(p => new PlayerInfo

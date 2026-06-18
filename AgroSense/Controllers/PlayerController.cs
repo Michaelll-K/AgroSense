@@ -124,6 +124,62 @@ namespace AgroSense.Controllers
         }
         #endregion
 
+        #region UseSniper()
+        [HttpPost("{name}/use-sniper/{shotPlayerName}")]
+        public async Task<ActionResult> UseSniper(string name, string shotPlayerName, string guesedRole)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+            var playerToShoot = await tableService.GetPlayer(shotPlayerName);
+
+            if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
+                return NotFound();
+
+            if (currentPlayer.Role != nameof(Role.ImpostorSniper))
+                return Ok();
+
+            settings.IsSniperUsed = true;
+
+            if (guesedRole == playerToShoot.Role)
+                await KillPlayer(playerToShoot.Name);
+            else
+                await KillPlayer(currentPlayer.Name);
+
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+            return Ok();
+        }
+        #endregion
+
+        #region UseSheriff()
+        [HttpPost("{name}/use-sheriff/{shotPlayerName}")]
+        public async Task<ActionResult> UseSheriff(string name, string shotPlayerName)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+            var playerToShoot = await tableService.GetPlayer(shotPlayerName);
+
+            if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
+                return NotFound();
+
+            if (currentPlayer.Role != nameof(Role.Sheriff))
+                return Ok();
+
+            settings.IsSheriffUsed = true;
+
+            if (playerToShoot.Role.Contains(nameof(Role.Impostor)))
+                await KillPlayer(playerToShoot.Name);
+            else
+                await KillPlayer(currentPlayer.Name);
+
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+            return Ok();
+        }
+        #endregion
+
         #region CompleteTask()
         [HttpPost("{name}/complete-task/{id}")]
         public async Task<ActionResult> CompleteTask(string name, string id)
