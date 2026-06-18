@@ -13,13 +13,11 @@ namespace AgroSense.Services
         private static readonly Random random = new Random();
 
         private readonly TableServiceClient tableService;
-        private readonly AmogusService amogusService;
 
         #region AmogusService()
-        public AmogusService(TableServiceClient tableService, AmogusService amogusService)
+        public AmogusService(TableServiceClient tableService)
         {
             this.tableService = tableService;
-            this.amogusService = amogusService;
         }
         #endregion
 
@@ -220,9 +218,9 @@ namespace AgroSense.Services
             await tableClient.UpdateEntityAsync(votedPlayer, ETag.All, TableUpdateMode.Replace);
 
             if (votedPlayer.Role == nameof(Role.Jester))
-                await amogusService.JesterWins();
+                await JesterWins();
             else
-                await amogusService.CheckGameAfterKill();
+                await CheckGameAfterKill();
 
             return true;
         }
