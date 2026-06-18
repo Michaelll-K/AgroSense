@@ -4,6 +4,7 @@
     {
         public int ShortTasksPerPlayer { get; set; }
         public int LongTasksPerPlayer { get; set; }
+        public bool AnonymousVoting { get; set; }
         public int ImpostorsAmount { get; set; }
         public int ImpostorBlackmailerChance { get; set; }
         public int ImpostorSniperChance { get; set; }

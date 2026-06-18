@@ -277,7 +277,7 @@ namespace AgroSense.Controllers
 
             var players = tableClient.Query<DbPlayer>().AsEnumerable();
             if (players.All(p => p.VotedPerson != null))
-                Ok(await amogusService.CheckGameAfterVoting());
+                return Ok(await amogusService.CheckGameAfterVoting());
 
             return Accepted();
         }

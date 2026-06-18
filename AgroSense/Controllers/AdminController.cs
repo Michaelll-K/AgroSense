@@ -85,6 +85,7 @@ namespace AgroSense.Controllers
 
             settings.ShortTasksPerPlayer = model.ShortTasksPerPlayer;
             settings.LongTasksPerPlayer = model.LongTasksPerPlayer;
+            settings.AnonymousVoting = model.AnonymousVoting;
             settings.SabotageDeadlineFromMinutes = model.SabotageDeadlineFromMinutes;
             settings.ImpostorsAmount = model.ImpostorsAmount;
             settings.ImpostorBlackmailerChance = model.ImpostorBlackmailerChance;
