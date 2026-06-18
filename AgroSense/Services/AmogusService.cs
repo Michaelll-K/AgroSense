@@ -1,8 +1,10 @@
-using Azure;
-using Azure.Data.Tables;
 using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Models.Admin;
+using AgroSense.Utils;
+using Azure;
+using Azure.Data.Tables;
+using System.Text.RegularExpressions;
 
 namespace AgroSense.Services
 {
@@ -11,11 +13,13 @@ namespace AgroSense.Services
         private static readonly Random random = new Random();
 
         private readonly TableServiceClient tableService;
+        private readonly AmogusService amogusService;
 
         #region AmogusService()
-        public AmogusService(TableServiceClient tableService)
+        public AmogusService(TableServiceClient tableService, AmogusService amogusService)
         {
             this.tableService = tableService;
+            this.amogusService = amogusService;
         }
         #endregion
 
@@ -185,6 +189,42 @@ namespace AgroSense.Services
                 settings.WinnigTeam = Role.Crewmate.ToString();
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
+        }
+        #endregion
+
+        #region CheckGameAfterVoting()
+        public async Task<bool> CheckGameAfterVoting()
+        {
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var votes = new List<string>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                votes.Add(player.VotedPerson);
+
+            var votedOut = votes
+                .GroupBy(x => x)
+                .Where(g => g.Count() == votes.GroupBy(x => x).Max(x => x.Count()))
+                .Select(g => g.Key)
+                .ToList();
+
+            // Remis, nikt nie zostaje wyeliminowany
+            if (votedOut.Count > 1)
+                return false;
+
+            var votedPlayer = await tableService.GetPlayer(votedOut.First());
+            if (votedPlayer is null)
+                throw new Exception("Not found voted player");
+
+            votedPlayer.IsAlive = false;
+
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            await tableClient.UpdateEntityAsync(votedPlayer, ETag.All, TableUpdateMode.Replace);
+
+            if (votedPlayer.Role == nameof(Role.Jester))
+                await amogusService.JesterWins();
+            else
+                await amogusService.CheckGameAfterKill();
+
+            return true;
         }
         #endregion
 

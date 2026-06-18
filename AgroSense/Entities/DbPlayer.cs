@@ -25,5 +25,6 @@ namespace AgroSense.Entities
         public string? TasksJson { get; set; }
         public bool IsAlive { get; set; }
         public bool IsBlackmailed { get; set; }
+        public string? VotedPerson { get; set; }
     }
 }

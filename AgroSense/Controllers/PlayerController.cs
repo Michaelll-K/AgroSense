@@ -1,11 +1,12 @@
-using Azure;
-using Azure.Data.Tables;
 using AgroSense.Entities;
 using AgroSense.Enums;
 using AgroSense.Models.Admin;
 using AgroSense.Services;
 using AgroSense.Utils;
+using Azure;
+using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
+using System.Numerics;
 using System.Text.Json;
 
 namespace AgroSense.Controllers
@@ -251,6 +252,32 @@ namespace AgroSense.Controllers
             await tableClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
 
             await amogusService.CheckGameAfterKill();
+
+            return Accepted();
+        }
+        #endregion
+
+        #region VotePlayer()
+        [HttpPost("{name}/vote/{votedPlayerName}")]
+        public async Task<ActionResult<bool?>> VotePlayer(string name, string votedPlayerName)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+            var votedPlayer = await tableService.GetPlayer(votedPlayerName);
+            if (!settings.IsGameActive || currentPlayer is null || votedPlayer is null)
+                return NotFound();
+
+            if (!settings.IsVoting)
+                return BadRequest("Nie trwa głosowanie!");
+
+            currentPlayer.VotedPerson = votedPlayer.Name;
+
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            await tableClient.UpdateEntityAsync(currentPlayer, ETag.All, TableUpdateMode.Replace);
+
+            var players = tableClient.Query<DbPlayer>().AsEnumerable();
+            if (players.All(p => p.VotedPerson != null))
+                Ok(await amogusService.CheckGameAfterVoting());
 
             return Accepted();
         }

@@ -58,6 +58,7 @@ namespace AgroSense.Controllers
             settings.PanicCooldown = DateTime.UtcNow.AddMinutes(settings.PanicCooldownFromMinutes);
             settings.IsCorpse = false;
             settings.IsBlackmailUsed = false;
+            settings.IsVoting = false;
 
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
@@ -69,6 +70,7 @@ namespace AgroSense.Controllers
             foreach (var player in players)
             {
                 player.IsBlackmailed = false;
+                player.VotedPerson = null;
                 await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
             }
 
@@ -177,6 +179,18 @@ namespace AgroSense.Controllers
             else
                 await amogusService.CheckGameAfterKill();
             
+            return Accepted();
+        }
+        #endregion
+
+        #region StartVoting()
+        [HttpPost("start-voting")]
+        public async Task<ActionResult> StartVoting()
+        {
+            var settings = await tableService.GetSettings();
+            settings.IsVoting = true;
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             return Accepted();
         }
         #endregion

@@ -38,10 +38,12 @@ namespace AgroSense.Entities
         public int SheriffChance { get; set; } = 0;
         public int JesterChance { get; set; } = 0;
         public int RenegateChance { get; set; } = 0;
+        public bool AnonymousVoting { get; set; }
         public bool IsPanic { get; set; } = false;
         public string? PanicReporter { get; set; }
         public bool IsCorpse { get; set; } = false;
         public string? CorpseReporter { get; set; }
+        public bool IsVoting { get; set; } = false;
         public DateTime? StartDateUtc { get; set; }
         public string? ImpostorsNames { get; set; }
         public DateTime? PanicCooldown { get; set; }

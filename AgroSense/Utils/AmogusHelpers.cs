@@ -86,6 +86,8 @@ namespace AgroSense.Utils
                 IsGameActive = settings?.IsGameActive ?? false,
                 SabotageStartDateUtc = settings?.SabotageStartDateUtc,
                 ImpostorsNames = settings?.ImpostorsNames,
+                AnonymousVoting = settings?.AnonymousVoting ?? false,
+                IsVoting = settings?.IsVoting ?? false,
                 IsPanic = settings?.IsPanic ?? false,
                 PanicReporter = settings?.PanicReporter,
                 IsCorpse = settings?.IsCorpse ?? false,
@@ -106,7 +108,8 @@ namespace AgroSense.Utils
                     Name = p.Name,
                     Role = p.Role,
                     IsAlive = p.IsAlive,
-                    IsBlackmailed = p.IsBlackmailed
+                    IsBlackmailed = p.IsBlackmailed,
+                    VotedPerson = p.VotedPerson
                 }).ToList()
             };
 
