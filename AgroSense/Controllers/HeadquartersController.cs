@@ -194,5 +194,15 @@ namespace AgroSense.Controllers
             return Accepted();
         }
         #endregion
+
+        #region EndVoting()
+        [HttpPost("end-voting")]
+        public async Task<ActionResult<bool>> EndVoting()
+        {
+            await EndPanic();
+
+            return Ok(await amogusService.CheckGameAfterVoting());
+        }
+        #endregion
     }
 }

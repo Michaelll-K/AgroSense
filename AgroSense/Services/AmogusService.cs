@@ -199,7 +199,8 @@ namespace AgroSense.Services
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             var votes = new List<string>();
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
-                votes.Add(player.VotedPerson);
+                if (player.VotedPerson is not null)
+                    votes.Add(player.VotedPerson);
 
             var votedOut = votes
                 .GroupBy(x => x)
