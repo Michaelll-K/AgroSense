@@ -136,7 +136,7 @@ namespace AgroSense.Controllers
             if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
                 return NotFound();
 
-            if (currentPlayer.Role != nameof(Role.ImpostorSniper))
+            if (currentPlayer.Role != nameof(Role.ImpostorSniper) || !settings.IsVoting)
                 return Ok();
 
 
