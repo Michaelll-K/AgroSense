@@ -209,7 +209,7 @@ namespace AgroSense.Services
                 .ToList();
 
             // Remis, nikt nie zostaje wyeliminowany
-            if (votedOut.Count > 1)
+            if (votedOut.Count != 1)
                 return false;
 
             var votedPlayer = await tableService.GetPlayer(votedOut.First());
