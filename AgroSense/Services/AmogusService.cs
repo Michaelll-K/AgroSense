@@ -197,10 +197,9 @@ namespace AgroSense.Services
         public async Task<bool> CheckGameAfterVoting()
         {
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
-            var votes = new List<string>();
+            var votes = new List<string?>();
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
-                if (player.VotedPerson is not null)
-                    votes.Add(player.VotedPerson);
+                votes.Add(player.VotedPerson);
 
             var votedOut = votes
                 .GroupBy(x => x)
@@ -208,8 +207,8 @@ namespace AgroSense.Services
                 .Select(g => g.Key)
                 .ToList();
 
-            // Remis, nikt nie zostaje wyeliminowany
-            if (votedOut.Count != 1)
+            // Remis lub skip
+            if (votedOut.Count != 1 || votedOut.First() is null)
                 return false;
 
             var votedPlayer = await tableService.GetPlayer(votedOut.First());
