@@ -196,10 +196,29 @@ namespace AgroSense.Services
         #region CheckGameAfterVoting()
         public async Task<bool> CheckGameAfterVoting()
         {
+            var settingsClient = tableService.GetTableClient(DbSettings.TableName);
+            DbSettings settings;
+            try
+            {
+                settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            }
+            catch (RequestFailedException) { return false; }
+
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             var votes = new List<string?>();
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+            {
+                if (player.Role == nameof(Role.Mayor) && settings.IsMayorUsed && !settings.MayorVoted)
+                {
+                    votes.Add(player.VotedPerson);
+                    votes.Add(player.VotedPerson);
+
+                    settings.MayorVoted = true;
+                    await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+                }
+
                 votes.Add(player.VotedPerson);
+            }
 
             var votedOut = votes
                 .GroupBy(x => x)

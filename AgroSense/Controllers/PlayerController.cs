@@ -136,7 +136,7 @@ namespace AgroSense.Controllers
             if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
                 return NotFound();
 
-            if (currentPlayer.Role != nameof(Role.ImpostorSniper) || !settings.IsVoting)
+            if (currentPlayer.Role != nameof(Role.ImpostorSniper) || !settings.IsVoting || settings.IsSniperUsed)
                 return Ok();
 
 
@@ -171,7 +171,7 @@ namespace AgroSense.Controllers
             if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
                 return NotFound();
 
-            if (currentPlayer.Role != nameof(Role.Sheriff))
+            if (currentPlayer.Role != nameof(Role.Sheriff) || settings.IsSheriffUsed)
                 return Ok();
 
             var result = true;
@@ -191,6 +191,29 @@ namespace AgroSense.Controllers
             await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
             return Ok(result);
+        }
+        #endregion
+
+        #region UseMayor()
+        [HttpPost("{name}/use-mayor")]
+        public async Task<ActionResult> UseMayor(string name)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+
+            if (!settings.IsGameActive || currentPlayer is null)
+                return NotFound();
+
+            if (currentPlayer.Role != nameof(Role.Mayor) || !settings.IsVoting || settings.IsMayorUsed)
+                return Ok();
+
+            settings = await tableService.GetSettings();
+            settings.IsMayorUsed = true;
+
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+            return Ok();
         }
         #endregion
 
