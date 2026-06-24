@@ -60,6 +60,8 @@ namespace AgroSense.Utils
             settings.IsDetectiveUsed = false;
             settings.IsSniperUsed = false;
             settings.IsSheriffUsed = false;
+            settings.IsMayorUsed = false;
+            settings.MayorVoted = false;
         }
         #endregion
 
@@ -100,6 +102,7 @@ namespace AgroSense.Utils
                 IsDetectiveUsed = settings?.IsDetectiveUsed ?? false,
                 IsSniperUsed = settings?.IsSniperUsed ?? false,
                 IsSheriffUsed = settings?.IsSheriffUsed ?? false,
+                IsMayorUsed = settings?.IsMayorUsed ?? false,
                 SabotageCooldownDateUtc = settings?.SabotageCooldown,
                 PanicCooldown = settings?.PanicCooldown,
                 MeetingDurationFromMinutes = settings?.MeetingDurationFromMinutes ?? 0,

@@ -62,5 +62,7 @@ namespace AgroSense.Entities
         public bool IsDetectiveUsed { get; set; }
         public bool IsSniperUsed { get; set; } = false;
         public bool IsSheriffUsed { get; set; } = false;
+        public bool IsMayorUsed { get; set; } = false;
+        public bool MayorVoted { get; set; } = false;
     }
 }
