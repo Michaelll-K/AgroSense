@@ -23,6 +23,7 @@
         public bool IsDetectiveUsed { get; set; }
         public bool IsSniperUsed { get; set; }
         public bool IsSheriffUsed { get; set; }
+        public bool IsMayorUsed { get; set; }
     }
 
     public class PlayerInfo
