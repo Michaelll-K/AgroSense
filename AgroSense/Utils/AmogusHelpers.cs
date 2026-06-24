@@ -81,7 +81,10 @@ namespace AgroSense.Utils
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var crewmatesCount = players.Count(p => !p.Role.Contains(Role.Impostor.ToString()));
+            var crewmatesCount = players.Count(p => 
+                !p.Role.Contains(Role.Impostor.ToString()) &&
+                p.Role != nameof(Role.Jester) &&
+                p.Role != nameof(Role.Renegate));
 
             var response = new CheckGameModel
             {

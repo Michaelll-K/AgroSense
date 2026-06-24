@@ -135,8 +135,13 @@ namespace AgroSense.Services
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var aliveCrewmates = players.Count(p => p.IsAlive && !p.Role.Contains(Role.Impostor.ToString()));
+            var aliveCrewmates = players.Count(p => 
+                p.IsAlive && 
+                !p.Role.Contains(Role.Impostor.ToString()) &&
+                p.Role != nameof(Role.Jester) &&
+                p.Role != nameof(Role.Renegate));
             var aliveImpostors = players.Count(p => p.IsAlive && p.Role.Contains(Role.Impostor.ToString()));
+            var aliveFactionPlayers = aliveCrewmates + aliveImpostors;
 
             var settingsClient = tableService.GetTableClient(DbSettings.TableName);
             DbSettings settings;
@@ -146,19 +151,31 @@ namespace AgroSense.Services
             }
             catch (RequestFailedException) { return; }
 
-            // TODO: dodanie logiki renegata
+            if (aliveFactionPlayers == 1 && players.Any(p => p.IsAlive && p.Role == nameof(Role.Renegate)))
+            {
+                settings.IsGameActive = false;
+                settings.WinnigTeam = Role.Renegate.ToString();
+                await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+                return;
+            }
 
             if (aliveImpostors <= 0)
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Crewmate.ToString();
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+                return;
             }
-            else if (aliveImpostors >= aliveCrewmates)
+            
+            if (aliveImpostors >= aliveCrewmates && !players.Any(p => p.IsAlive && p.Role == nameof(Role.Renegate)))
             {
                 settings.IsGameActive = false;
                 settings.WinnigTeam = Role.Impostor.ToString();
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
+                return;
             }
         }
         #endregion

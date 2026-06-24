@@ -239,7 +239,9 @@ namespace AgroSense.Controllers
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             await playersClient.UpdateEntityAsync(currentPlayer, ETag.All, TableUpdateMode.Replace);
 
-            if (currentPlayer.Role.Contains(nameof(Role.Impostor)))
+            if (currentPlayer.Role.Contains(nameof(Role.Impostor)) ||
+                currentPlayer.Role == nameof(Role.Jester) ||
+                currentPlayer.Role == nameof(Role.Renegate))
                 return Ok();
 
             var players = new List<DbPlayer>();
