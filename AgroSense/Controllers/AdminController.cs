@@ -172,6 +172,7 @@ namespace AgroSense.Controllers
                 player.TasksJson = JsonSerializer.Serialize(playerTasks);
                 player.IsAlive = true;
                 player.IsBlackmailed = false;
+                player.VotedPerson = null;
                 await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
             }
 
