@@ -50,6 +50,7 @@ namespace AgroSense.Utils
             settings.CorpseReporter = null;
             settings.StartDateUtc = null;
             settings.ImpostorsNames = null;
+            settings.RenegateHelp = null;
             settings.PanicCooldown = null;
             settings.SabotageStartDateUtc = null;
             settings.SabotageCooldown = null;
@@ -133,6 +134,19 @@ namespace AgroSense.Utils
         public static bool IsImpostor(this DbPlayer player)
         {
             return player.Role.Contains(nameof(Role.Impostor));
+        }
+        #endregion
+
+        #region HalfOfTasksDone()
+        public static async Task<bool> HalfOfTasksDone(this TableServiceClient tableService, DbSettings settings)
+        {
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in tableClient.QueryAsync<DbPlayer>())
+                players.Add(player);
+
+            var totalTasks = (settings.TasksPerPlayer * players.Count(p => p.IsCrewmate()));
+            return settings.CompletedTasksCount >= (totalTasks / 2);
         }
         #endregion
     }

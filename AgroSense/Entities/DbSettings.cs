@@ -46,6 +46,7 @@ namespace AgroSense.Entities
         public bool IsVoting { get; set; } = false;
         public DateTime? StartDateUtc { get; set; }
         public string? ImpostorsNames { get; set; }
+        public string? RenegateHelp { get; set; }
         public DateTime? PanicCooldown { get; set; }
         public int PanicCooldownFromMinutes { get; set; }
         public DateTime? SabotageStartDateUtc { get; set; }

@@ -308,5 +308,47 @@ namespace AgroSense.Controllers
             return Accepted();
         }
         #endregion
+
+        #region UseRenegate()
+        [HttpPost("{name}/use-renegate")]
+        public async Task<ActionResult<string>> UseRenegate(string name)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+
+            if (!settings.IsGameActive || currentPlayer is null)
+                return NotFound();
+
+            var halfOfTasksDone = await tableService.HalfOfTasksDone(settings);
+            if (!halfOfTasksDone || currentPlayer.Role != nameof(Role.Renegate))
+                return Ok(null);
+
+            if (!string.IsNullOrEmpty(settings.RenegateHelp))
+                return Ok(settings.RenegateHelp);
+
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
+
+            var randomCrewmate = players
+                .Where(p => p.IsCrewmate() && p.IsAlive)
+                .OrderBy(_ => Guid.NewGuid())
+                .FirstOrDefault();
+
+            var randomImpostor = players
+                .Where(p => p.IsImpostor() && p.IsAlive)
+                .OrderBy(_ => Guid.NewGuid())
+                .FirstOrDefault();
+
+            settings.RenegateHelp = randomCrewmate is not null && randomImpostor is not null
+                ? $"Crewmate: {randomCrewmate.Name} | Impostor: {randomImpostor.Name}"
+                : "Nie ma wystarczającej liczby żywych graczy, aby Renegat mógł otrzymać pomoc.";
+
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+            return Ok(settings.RenegateHelp);
+        }
+        #endregion
     }
 }
