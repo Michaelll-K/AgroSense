@@ -81,10 +81,7 @@ namespace AgroSense.Utils
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var crewmatesCount = players.Count(p => 
-                !p.Role.Contains(Role.Impostor.ToString()) &&
-                p.Role != nameof(Role.Jester) &&
-                p.Role != nameof(Role.Renegate));
+            var crewmatesCount = players.Count(p => p.IsCrewmate());
 
             var response = new CheckGameModel
             {
@@ -120,6 +117,22 @@ namespace AgroSense.Utils
             };
 
             await hub.Clients.All.AmogusStatus(response);
+        }
+        #endregion
+
+        #region IsCrewmate()
+        public static bool IsCrewmate(this DbPlayer player)
+        {
+            return !player.Role.Contains(nameof(Role.Impostor)) &&
+                   player.Role != nameof(Role.Jester) &&
+                   player.Role != nameof(Role.Renegate);
+        }
+        #endregion
+
+        #region IsImpostor()
+        public static bool IsImpostor(this DbPlayer player)
+        {
+            return player.Role.Contains(nameof(Role.Impostor));
         }
         #endregion
     }

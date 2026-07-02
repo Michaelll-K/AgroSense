@@ -239,9 +239,7 @@ namespace AgroSense.Controllers
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             await playersClient.UpdateEntityAsync(currentPlayer, ETag.All, TableUpdateMode.Replace);
 
-            if (currentPlayer.Role.Contains(nameof(Role.Impostor)) ||
-                currentPlayer.Role == nameof(Role.Jester) ||
-                currentPlayer.Role == nameof(Role.Renegate))
+            if (!currentPlayer.IsCrewmate())
                 return Ok();
 
             var players = new List<DbPlayer>();
@@ -251,9 +249,7 @@ namespace AgroSense.Controllers
             settings.CompletedTasksCount = players 
                 .Where(p => 
                     !string.IsNullOrEmpty(p.TasksJson) && 
-                    !p.Role.Contains(nameof(Role.Impostor)) &&
-                    !p.Role.Contains(nameof(Role.Jester)) &&
-                    !p.Role.Contains(nameof(Role.Renegate))
+                    p.IsCrewmate()
                 )
                 .SelectMany(p => JsonSerializer.Deserialize<List<TaskModel>>(p.TasksJson)!)
                 .Count(t => t.IsCompleted);

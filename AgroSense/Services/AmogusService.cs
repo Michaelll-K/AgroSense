@@ -135,12 +135,8 @@ namespace AgroSense.Services
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var aliveCrewmates = players.Count(p => 
-                p.IsAlive && 
-                !p.Role.Contains(Role.Impostor.ToString()) &&
-                p.Role != nameof(Role.Jester) &&
-                p.Role != nameof(Role.Renegate));
-            var aliveImpostors = players.Count(p => p.IsAlive && p.Role.Contains(Role.Impostor.ToString()));
+            var aliveCrewmates = players.Count(p => p.IsAlive && p.IsCrewmate());
+            var aliveImpostors = players.Count(p => p.IsAlive && p.IsImpostor());
             var aliveFactionPlayers = aliveCrewmates + aliveImpostors;
 
             var settingsClient = tableService.GetTableClient(DbSettings.TableName);
@@ -196,10 +192,7 @@ namespace AgroSense.Services
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
                 players.Add(player);
 
-            var crewmatesCount = players.Count(p => 
-                !p.Role.Contains(nameof(Role.Impostor)) &&
-                !p.Role.Contains(nameof(Role.Jester)) &&
-                !p.Role.Contains(nameof(Role.Renegate)));
+            var crewmatesCount = players.Count(p => p.IsCrewmate());
 
             if (settings.CompletedTasksCount >= settings.TasksPerPlayer * crewmatesCount)
             {

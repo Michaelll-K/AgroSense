@@ -28,7 +28,7 @@ namespace AgroSense.Controllers
             var currentPlayer = await tableService.GetPlayer(name);
             var blackmailPlayer = await tableService.GetPlayer(blackmailName);
 
-            if (currentPlayer is null || blackmailPlayer is null || !currentPlayer.Role.Contains(Role.Impostor.ToString()))
+            if (currentPlayer is null || blackmailPlayer is null || !currentPlayer.IsImpostor())
                 return NotFound();
 
             if (settings.IsBlackmailUsed)
@@ -55,7 +55,7 @@ namespace AgroSense.Controllers
             var settings = await tableService.GetSettings();
             var currentPlayer = await tableService.GetPlayer(name);
 
-            if (currentPlayer is null || !currentPlayer.Role.Contains(Role.Impostor.ToString()))
+            if (currentPlayer is null || !currentPlayer.IsImpostor())
                 return NotFound();
 
             if (settings.SabotageCooldown > DateTime.UtcNow)

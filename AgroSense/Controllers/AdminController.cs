@@ -178,7 +178,7 @@ namespace AgroSense.Controllers
             settings.ResetSettings();
             settings.IsGameActive = true;
             settings.StartDateUtc = DateTime.UtcNow.AddMinutes(1);
-            settings.ImpostorsNames = string.Join(", ", players.Where(p => p.Role.Contains(Role.Impostor.ToString())).Select(p => p.Name));
+            settings.ImpostorsNames = string.Join(", ", players.Where(p => p.IsImpostor()).Select(p => p.Name));
 
             await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
