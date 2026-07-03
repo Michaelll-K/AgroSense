@@ -63,6 +63,7 @@ namespace AgroSense.Utils
             settings.IsSheriffUsed = false;
             settings.IsMayorUsed = false;
             settings.MayorVoted = false;
+            settings.IsVoting = false;
         }
         #endregion
 
