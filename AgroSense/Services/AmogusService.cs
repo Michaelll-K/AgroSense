@@ -281,7 +281,7 @@ namespace AgroSense.Services
         }
         #endregion
 
-        public static void Shuffle<T>(List<T> list)
+        void Shuffle<T>(List<T> list)
         {
             for (int n = list.Count - 1; n > 0; n--)
             {
