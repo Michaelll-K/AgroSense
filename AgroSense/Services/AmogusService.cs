@@ -4,6 +4,7 @@ using AgroSense.Models.Admin;
 using AgroSense.Utils;
 using Azure;
 using Azure.Data.Tables;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace AgroSense.Services
@@ -275,14 +276,11 @@ namespace AgroSense.Services
         }
         #endregion
 
-        static void Shuffle<T>(List<T> list)
+        void Shuffle<T>(List<T> list)
         {
-            int n = list.Count;
-            while (n > 1)
+            for (int n = list.Count - 1; n > 0; n--)
             {
-                Random rng = new Random();
-                n--;
-                int k = rng.Next(n + 1);
+                int k = RandomNumberGenerator.GetInt32(n + 1);
                 (list[n], list[k]) = (list[k], list[n]);
             }
         }
