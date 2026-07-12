@@ -201,7 +201,12 @@ namespace AgroSense.Controllers
         {
             var result = await amogusService.CheckGameAfterVoting();
 
-            await EndPanic();
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+
+            settings.IsVoting = false;
+
+            await tableClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
             return Ok(result);
         }
