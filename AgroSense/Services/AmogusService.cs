@@ -257,6 +257,9 @@ namespace AgroSense.Services
             else
                 await CheckGameAfterKill();
 
+            settings.IsVoting = false;
+            await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
+
             return true;
         }
         #endregion
