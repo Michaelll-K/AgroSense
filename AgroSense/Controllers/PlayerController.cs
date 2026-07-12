@@ -309,6 +309,30 @@ namespace AgroSense.Controllers
         }
         #endregion
 
+        #region SkipVoting()
+        [HttpPost("{name}/skip-voting")]
+        public async Task<ActionResult<bool?>> SkipVoting(string name)
+        {
+            var settings = await tableService.GetSettings();
+            var currentPlayer = await tableService.GetPlayer(name);
+            if (!settings.IsGameActive || currentPlayer is null)
+                return NotFound();
+
+            if (!settings.IsVoting)
+                return BadRequest("Nie trwa głosowanie!");
+
+            currentPlayer.VotedPerson = "";
+            var tableClient = tableService.GetTableClient(DbPlayer.TableName);
+            await tableClient.UpdateEntityAsync(currentPlayer, ETag.All, TableUpdateMode.Replace);
+            
+            var players = tableClient.Query<DbPlayer>().AsEnumerable();
+            if (players.All(p => p.VotedPerson != null))
+                return Ok(await amogusService.CheckGameAfterVoting());
+            
+            return Accepted();
+        }
+        #endregion
+
         #region UseRenegate()
         [HttpPost("{name}/use-renegate")]
         public async Task<ActionResult<string>> UseRenegate(string name)

@@ -219,16 +219,18 @@ namespace AgroSense.Services
             var votes = new List<string?>();
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
             {
+                var playerVote = string.IsNullOrEmpty(player.VotedPerson) ? null : player.VotedPerson;
+
                 if (player.Role == nameof(Role.Mayor) && settings.IsMayorUsed && !settings.MayorVoted)
                 {
-                    votes.Add(player.VotedPerson);
-                    votes.Add(player.VotedPerson);
+                    votes.Add(playerVote);
+                    votes.Add(playerVote);
 
                     settings.MayorVoted = true;
                     await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
                 }
 
-                votes.Add(player.VotedPerson);
+                votes.Add(playerVote);
             }
 
             var votedOut = votes
