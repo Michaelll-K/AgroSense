@@ -166,7 +166,7 @@ namespace AgroSense.Controllers
         {
             var settings = await tableService.GetSettings();
             var currentPlayer = await tableService.GetPlayer(name);
-            var playerToShoot = await tableService.GetPlayer(shotPlayerName);
+            var playerToShoot = await tableService.GetPlayer(shotPlayerName, false);
 
             if (!settings.IsGameActive || currentPlayer is null || playerToShoot is null)
                 return NotFound();
