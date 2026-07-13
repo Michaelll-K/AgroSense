@@ -62,4 +62,6 @@ jobs:
           app-name: 'projectx-amongus-web-app'
           slot-name: 'Production'
           package: .
+          clean: true
+          startup-command: 'dotnet /home/site/wwwroot/AgroSense.dll'
           
