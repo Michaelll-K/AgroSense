@@ -150,8 +150,7 @@ namespace AgroSense.Services
 
             if (aliveFactionPlayers == 1 && players.Any(p => p.IsAlive && p.Role == nameof(Role.Renegate)))
             {
-                settings.IsGameActive = false;
-                settings.WinnigTeam = Role.Renegate.ToString();
+                settings.EndGame(Role.Renegate);
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
                 return;
@@ -159,8 +158,7 @@ namespace AgroSense.Services
 
             if (aliveImpostors <= 0)
             {
-                settings.IsGameActive = false;
-                settings.WinnigTeam = Role.Crewmate.ToString();
+                settings.EndGame(Role.Crewmate);
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
                 return;
@@ -168,8 +166,7 @@ namespace AgroSense.Services
             
             if (aliveImpostors >= aliveCrewmates && !players.Any(p => p.IsAlive && p.Role == nameof(Role.Renegate)))
             {
-                settings.IsGameActive = false;
-                settings.WinnigTeam = Role.Impostor.ToString();
+                settings.EndGame(Role.Impostor);
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
                 return;
@@ -197,8 +194,7 @@ namespace AgroSense.Services
 
             if (settings.CompletedTasksCount >= settings.TasksPerPlayer * crewmatesCount)
             {
-                settings.IsGameActive = false;
-                settings.WinnigTeam = Role.Crewmate.ToString();
+                settings.EndGame(Role.Crewmate);
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
             }
         }
@@ -275,8 +271,8 @@ namespace AgroSense.Services
             }
             catch (RequestFailedException) { return; }
 
-            settings.IsGameActive = false;
-            settings.WinnigTeam = Role.Jester.ToString();
+
+            settings.EndGame(Role.Jester);
             await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
         }
         #endregion

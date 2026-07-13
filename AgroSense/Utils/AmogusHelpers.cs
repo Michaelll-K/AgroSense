@@ -67,6 +67,24 @@ namespace AgroSense.Utils
         }
         #endregion
 
+        #region EndGame()
+        public static void EndGame(this DbSettings settings, Role winningTeam)
+        {
+            settings.WinnigTeam = winningTeam.ToString();
+            settings.IsGameActive = false;
+            settings.IsPanic = false;
+            settings.PanicReporter = null;
+            settings.IsCorpse = false;
+            settings.CorpseReporter = null;
+            settings.RenegateHelp = null;
+            settings.PanicCooldown = null;
+            settings.SabotageStartDateUtc = null;
+            settings.SabotageCooldown = null;
+            settings.SabotageDeadline = null;
+            settings.IsVoting = false;
+        }
+        #endregion
+
         #region SendStatusUpdate()
         public static async Task SendStatusUpdate(this IHubContext<CheckGameHub, ICheckGameClient> hub, TableServiceClient tableService)
         {
