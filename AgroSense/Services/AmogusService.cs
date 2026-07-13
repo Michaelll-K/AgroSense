@@ -253,6 +253,7 @@ namespace AgroSense.Services
             else
                 await CheckGameAfterKill();
 
+            settings = (await settingsClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
             settings.IsVoting = false;
             await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
 
