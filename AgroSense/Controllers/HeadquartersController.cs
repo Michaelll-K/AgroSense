@@ -199,6 +199,15 @@ namespace AgroSense.Controllers
         [HttpPost("end-voting")]
         public async Task<ActionResult<bool>> EndVoting()
         {
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+            {
+                if (player.VotedPerson is null)
+                    player.VotedPerson = "";
+
+                await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
+            }
+
             var result = await amogusService.CheckGameAfterVoting();
 
             var tableClient = tableService.GetTableClient(DbSettings.TableName);

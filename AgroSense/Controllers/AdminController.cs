@@ -166,6 +166,7 @@ namespace AgroSense.Controllers
 
             startService.DetermineRoles(settings, players);
 
+            // Reset graczy przed rozpoczęciem gry
             foreach (var player in players)
             {
                 var playerTasks = await startService.GetTasksForPlayer(settings, players.Count);
