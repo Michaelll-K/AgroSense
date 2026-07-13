@@ -27,7 +27,7 @@ jobs:
         run: dotnet build AgroSense/AgroSense.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish AgroSense/AgroSense.csproj -c Release -o 
+        run: dotnet publish AgroSense/AgroSense.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
