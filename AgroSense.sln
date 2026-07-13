@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgroSense", "AgroSense\AgroSense.csproj", "{AB3D487A-F781-46BC-ADEE-B1B7688BB2B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amogus.Tests", "Amogus.Tests\Amogus.Tests.csproj", "{F0B995AC-72CB-47A0-AA45-450C12551486}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +17,15 @@ Global
 		{AB3D487A-F781-46BC-ADEE-B1B7688BB2B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB3D487A-F781-46BC-ADEE-B1B7688BB2B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB3D487A-F781-46BC-ADEE-B1B7688BB2B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0B995AC-72CB-47A0-AA45-450C12551486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0B995AC-72CB-47A0-AA45-450C12551486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0B995AC-72CB-47A0-AA45-450C12551486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0B995AC-72CB-47A0-AA45-450C12551486}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {78F2AC40-930C-432F-ABA5-4A3DF700F6D3}
 	EndGlobalSection
 EndGlobal
