@@ -76,12 +76,15 @@ namespace AgroSense.Services
 
             Shuffle(players);
 
-            // Specjalne role impostora — każda może wystąpić co najwyżej raz
+            // Specjalne role impostora — każda może wystąpić co najwyżej raz.
+            // Najpierw losujemy role o największej szansie wystąpienia.
             var specialImpostorRoles = new List<(string Role, int Chance)>
             {
                 (nameof(Role.ImpostorBlackmailer), settings.ImpostorBlackmailerChance),
                 (nameof(Role.ImpostorSniper),      settings.ImpostorSniperChance),
-            };
+            }
+            .OrderByDescending(r => r.Chance)
+            .ToList();
             var usedImpostorRoles = new HashSet<string>();
 
             for (int i = 0; i < settings.ImpostorsAmount; i++)
@@ -101,7 +104,8 @@ namespace AgroSense.Services
                 players[i].Role = assignedRole;
             }
 
-            // Specjalne role crewmate/neutralne — każda może wystąpić co najwyżej raz
+            // Specjalne role crewmate/neutralne — każda może wystąpić co najwyżej raz.
+            // Najpierw losujemy role o największej szansie wystąpienia.
             var specialCrewmateRoles = new List<(string Role, int Chance)>
             {
                 (nameof(Role.Detective), settings.DetectiveChance),
@@ -110,7 +114,9 @@ namespace AgroSense.Services
                 (nameof(Role.Sheriff),   settings.SheriffChance),
                 (nameof(Role.Jester),    settings.JesterChance),
                 (nameof(Role.Renegate),  settings.RenegateChance),
-            };
+            }
+            .OrderByDescending(r => r.Chance)
+            .ToList();
 
             int crewmateIndex = settings.ImpostorsAmount;
 
