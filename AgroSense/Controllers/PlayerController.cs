@@ -176,9 +176,11 @@ namespace AgroSense.Controllers
 
             var result = true;
 
-            if (playerToShoot.Role.Contains(nameof(Role.Impostor)))
+            if (playerToShoot.IsAlive && playerToShoot.Role.Contains(nameof(Role.Impostor)))
+            {
                 await KillPlayer(playerToShoot.Name);
-            else
+            }
+            else if (!playerToShoot.Role.Contains(nameof(Role.Impostor)))
             {
                 await KillPlayer(currentPlayer.Name);
                 result = false;
