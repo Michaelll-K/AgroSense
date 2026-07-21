@@ -246,6 +246,25 @@ namespace AgroSense.Controllers
         }
         #endregion
 
+        #region UpdateTask()
+        [Authorize]
+        [HttpPut("task/{id}")]
+        public async Task<ActionResult> UpdateTask(string id, [FromBody] TaskModel model)
+        {
+            var tableClient = tableService.GetTableClient(DbTask.TableName);
+            var task = (await tableClient.GetEntityAsync<DbTask>("Task", id)).Value;
+
+            task.Name = model.Name;
+            task.Location = model.Location;
+            task.Description = model.Description;
+            task.TaskLength = model.TaskLength;
+
+            await tableClient.UpdateEntityAsync(task, ETag.All, TableUpdateMode.Replace);
+
+            return Accepted();
+        }
+        #endregion
+
         #region DeleteTask()
         [Authorize]
         [HttpDelete("task/{id}")]
