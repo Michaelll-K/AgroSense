@@ -51,7 +51,7 @@ namespace AgroSense.Services
             var longTasks = tasks
                 .Where(t => t.TaskLength == TaskLength.Long)
                 .OrderBy(t => random.Next())
-                .Take(settings.ShortTasksPerPlayer)
+                .Take(settings.LongTasksPerPlayer)
                 .Select(t => new TaskModel
                 {
                     Id = t.Id,
@@ -222,6 +222,9 @@ namespace AgroSense.Services
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
             {
                 var playerVote = string.IsNullOrEmpty(player.VotedPerson) ? null : player.VotedPerson;
+
+                if (!player.IsAlive && playerVote is null)
+                    continue;
 
                 if (player.Role == nameof(Role.Mayor) && settings.IsMayorUsed && !settings.MayorVoted)
                 {
