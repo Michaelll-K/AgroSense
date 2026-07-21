@@ -202,7 +202,7 @@ namespace AgroSense.Controllers
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
             var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
 
-            if (settings.IsVoting)
+            if (!settings.IsVoting)
                 return Ok(false);
 
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
