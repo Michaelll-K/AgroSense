@@ -304,7 +304,7 @@ namespace AgroSense.Controllers
             await tableClient.UpdateEntityAsync(currentPlayer, ETag.All, TableUpdateMode.Replace);
 
             var players = tableClient.Query<DbPlayer>().AsEnumerable();
-            if (players.All(p => p.VotedPerson != null))
+            if (players.Where(p => p.IsAlive || p.VotedPerson != null).All(p => p.VotedPerson != null))
                 return Ok(await amogusService.CheckGameAfterVoting());
 
             return Accepted();
