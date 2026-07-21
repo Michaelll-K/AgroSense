@@ -199,6 +199,12 @@ namespace AgroSense.Controllers
         [HttpPost("end-voting")]
         public async Task<ActionResult<bool>> EndVoting()
         {
+            var tableClient = tableService.GetTableClient(DbSettings.TableName);
+            var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+
+            if (settings.IsVoting)
+                return Ok(false);
+
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
             {
@@ -210,8 +216,7 @@ namespace AgroSense.Controllers
 
             var result = await amogusService.CheckGameAfterVoting();
 
-            var tableClient = tableService.GetTableClient(DbSettings.TableName);
-            var settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
+            settings = (await tableClient.GetEntityAsync<DbSettings>("Settings", "main")).Value;
 
             settings.IsVoting = false;
 
