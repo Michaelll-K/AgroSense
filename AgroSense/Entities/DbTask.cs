@@ -14,7 +14,6 @@ namespace AgroSense.Entities
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
-        [JsonIgnore]
         public string Id
         {
             get => RowKey;
