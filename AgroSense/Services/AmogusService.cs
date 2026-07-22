@@ -248,9 +248,12 @@ namespace AgroSense.Services
             if (votedOut.Count != 1 || votedOut.First() is null)
                 return false;
 
-            var votedPlayer = await tableService.GetPlayer(votedOut.First());
+            var votedPlayer = await tableService.GetPlayer(votedOut.First(), false);
             if (votedPlayer is null)
                 throw new Exception("Not found voted player");
+
+            if (!votedPlayer.IsAlive)
+                return false;
 
             votedPlayer.IsAlive = false;
 
