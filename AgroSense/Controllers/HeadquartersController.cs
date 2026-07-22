@@ -187,6 +187,17 @@ namespace AgroSense.Controllers
         [HttpPost("start-voting")]
         public async Task<ActionResult> StartVoting()
         {
+            var playersClient = tableService.GetTableClient(DbPlayer.TableName);
+            var players = new List<DbPlayer>();
+            await foreach (var player in playersClient.QueryAsync<DbPlayer>())
+                players.Add(player);
+
+            foreach (var player in players)
+            {
+                player.VotedPerson = null;
+                await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
+            }
+
             var settings = await tableService.GetSettings();
             settings.IsVoting = true;
             var tableClient = tableService.GetTableClient(DbSettings.TableName);
@@ -208,7 +219,7 @@ namespace AgroSense.Controllers
             var playersClient = tableService.GetTableClient(DbPlayer.TableName);
             await foreach (var player in playersClient.QueryAsync<DbPlayer>())
             {
-                if (player.VotedPerson is null)
+                if (player.IsAlive && player.VotedPerson is null)
                     player.VotedPerson = "";
 
                 await playersClient.UpdateEntityAsync(player, ETag.All, TableUpdateMode.Replace);
