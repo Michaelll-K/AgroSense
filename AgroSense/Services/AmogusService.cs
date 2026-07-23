@@ -170,7 +170,7 @@ namespace AgroSense.Services
                 return;
             }
             
-            if (aliveImpostors >= aliveCrewmates && !players.Any(p => p.IsAlive && p.Role == nameof(Role.Renegate)))
+            if (aliveImpostors >= players.Count(p => p.IsAlive && !p.IsImpostor()))
             {
                 settings.EndGame(Role.Impostor);
                 await settingsClient.UpdateEntityAsync(settings, ETag.All, TableUpdateMode.Replace);
@@ -252,6 +252,7 @@ namespace AgroSense.Services
             if (votedPlayer is null)
                 throw new Exception("Not found voted player");
 
+            // If the voted player is already dead, we don't need to do anything
             if (!votedPlayer.IsAlive)
                 return false;
 
